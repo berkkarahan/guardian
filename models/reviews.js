@@ -71,3 +71,21 @@ const vehicleReviewSchema = new mongoose.Schema(
   abstract.baseRatingSchema,
   abstract.baseOptions
 );
+
+const DriverReview = mongoose.model("DriverReview", driverReviewSchema);
+const HostessRevew = mongoose.model("HostessReview", hostessReviewSchema);
+const BreakReview = mongoose.model("BrewkReview", breakReviewSchema);
+const TravelReview = mongoose.model("TravelReview", traveltimeReviewSchema);
+const BaggageReview = mongoose.model("BaggageReview", baggageReviewSchema);
+const PetReview = mongoose.model("PetReview", petReviewSchema);
+const VehicleReview = mongoose.model("VehicleReview", vehicleReviewSchema);
+
+export default {
+  driver: DriverReview,
+  hostess: HostessRevew,
+  break: BreakReview,
+  travel: TravelReview,
+  baggage: BaggageReview,
+  pet: PetReview,
+  vehicle: VehicleReview
+};

@@ -128,3 +128,10 @@ userSchema.methods.toAuthJSON = function() {
     token: this.generateJWT()
   };
 };
+
+const User = mongoose.model("User", userSchema);
+
+export default {
+  session: Session,
+  user: User
+};
