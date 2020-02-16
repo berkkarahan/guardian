@@ -18,7 +18,8 @@ const _AbstractRatingSchema = {rating : {type:Number, min:1, max:5}}
 const AbstractRatingSchema = merge(
     {},
     AbstractModelSchema,
-    _AbstractCommentSchema
+    _AbstractCommentSchema,
+    _AbstractRatingSchema
 )
 
 const _AbstractTimestamps = {timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }}
