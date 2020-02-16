@@ -12,7 +12,7 @@ import config from "./config/index";
 
 const isProduction = config.node_env === "production";
 
-passport.use(passportSettings.strategy);
+passport.use("local", passportSettings.localStrategy);
 passport.serializeUser(passportSettings.serializer);
 passport.deserializeUser(passportSettings.deserializer);
 

@@ -1,4 +1,3 @@
-import passport from "passport";
 import { Strategy } from "passport-local";
 import user from "../models/user";
 
@@ -37,5 +36,5 @@ const deserializeUser = function(user, done) {
 export default {
   serializer: serializeUser,
   deserializer: deserializeUser,
-  strategy: localStrategy
+  localStrategy: localStrategy
 };
