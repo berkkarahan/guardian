@@ -5,26 +5,9 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import abstract from "./abstract";
 import config from "../config";
+import session from "./session";
 
-const session = merge(
-  {
-    login_ip: {
-      type: String,
-      validate: {
-        validator: function(v) {
-          return isIP(v, [4, 6]);
-        },
-        message: props => `${props.value} is not a valid IP adress!`
-      }
-    },
-    login_device: { type: String },
-    jwt_token: { type: String },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
-  },
-  abstract.baseSchema
-);
-const sessionSchema = new mongoose.Schema(session, abstract.baseOptions);
-const Session = mongoose.model("Session", sessionSchema);
+const Session = session.session;
 
 const user = merge(
   {
@@ -81,20 +64,20 @@ const userSchema = new mongoose.Schema(user, abstract.baseOptions);
 userSchema.pre("save", function(next) {
   const currentUser = this;
   if (!currentUser.isModified("password")) return next();
-  bcrypt.hash(currentUser.password, 10, function(err, password) {
-    if (err) return next(err);
-    currentUser.password = password;
-    // delete all sessions of the user once password changes
-    Session.deleteMany(
-      {
-        user: currentUser._id
-      },
-      function(err) {
-        if (err) console.log(err);
-      }
-    );
-    next();
-  });
+  const hashedPassword = Promise.all([
+    bcrypt.hash(currentUser.password, 10),
+    Session.deleteMany({
+      user: currentUser._id
+    })
+  ])
+    .then(results => {
+      const [hashedPassword, deleteResult] = results;
+      return hashedPassword;
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  currentUser.password = hashedPassword;
 });
 
 userSchema.methods.comparePassword = function(password, callback) {
@@ -132,6 +115,5 @@ userSchema.methods.toAuthJSON = function() {
 const User = mongoose.model("User", userSchema);
 
 export default {
-  session: Session,
   user: User
 };
