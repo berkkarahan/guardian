@@ -11,7 +11,13 @@ const Session = session.session;
 
 const user = merge(
   {
-    user_name: { type: String },
+    user_name: {
+      type: String,
+      required: [true, "can't be blank"],
+      unique: true,
+      index: true,
+      lowercase: true
+    },
     first_name: { type: String },
     last_name: { type: String },
     email: {
@@ -21,7 +27,11 @@ const user = merge(
           return isEmail(v);
         },
         message: props => `${props.value} is not a valid email adress!`
-      }
+      },
+      required: [true, "can't be blank"],
+      unique: true,
+      index: true,
+      lowercase: true
     },
     password: { type: String },
     gender: {
@@ -54,6 +64,7 @@ const user = merge(
     timestamp_register: { type: Date },
     timestamp_last_login: { type: Date },
     activated: { type: Date },
+    deactivated: { type: Date },
     verified: { type: Date },
     verification_token: { type: String }
   },

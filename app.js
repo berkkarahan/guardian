@@ -6,11 +6,12 @@ import helmet from "helmet";
 import passport from "passport";
 import bodyparser from "body-parser";
 import errorhandler from "errorhandler";
-import connectDB from "./db";
+import db from "./db";
 import passportSettings from "./config/passport";
 import config from "./config/index";
 
 const isProduction = config.node_env === "production";
+const connectDB = db.connect;
 
 passport.use("local", passportSettings.localStrategy);
 passport.serializeUser(passportSettings.serializer);

@@ -30,4 +30,13 @@ const connectDB = function() {
   }
 };
 
-export default connectDB;
+export default {
+  connect: connectDB,
+  models: {
+    user: User,
+    session: Session,
+    review: Review,
+    company: Company,
+    travelslots: Travelslots
+  }
+};
