@@ -47,3 +47,7 @@ sessionSchema.virtual("requestsPerHour").get(function() {
 });
 
 const Session = mongoose.model("Session", sessionSchema);
+
+export default {
+  session: Session
+};

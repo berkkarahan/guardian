@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(user, abstract.baseOptions);
 userSchema.pre("save", function(next) {
   const currentUser = this;
   if (!currentUser.isModified("password")) return next();
-  const hashedPassword = Promise.all([
+  const hashedPwd = Promise.all([
     bcrypt.hash(currentUser.password, 10),
     Session.deleteMany({
       user: currentUser._id
@@ -77,7 +77,7 @@ userSchema.pre("save", function(next) {
     .catch(err => {
       console.log(err);
     });
-  currentUser.password = hashedPassword;
+  currentUser.password = hashedPwd;
 });
 
 userSchema.methods.comparePassword = function(password, callback) {
