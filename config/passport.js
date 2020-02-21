@@ -1,5 +1,9 @@
 import { Strategy } from "passport-local";
+import passportCustom from "passport-custom";
 import user from "../models/user";
+import ip from "../utils/ip";
+
+const getIP = ip.fn;
 
 const User = user.user;
 const Session = user.session;
@@ -25,16 +29,36 @@ const localStrategy = new LocalStrategy(
   }
 );
 
-const serializeUser = function(user, done) {
-  done(null, user);
+const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
+  const userIP = getIP(req);
+  const userAgent = req.get("user-agent");
+  const _session = await Session.findOne({
+    user: req.user.id,
+    login_ip: userIP,
+    login_device: userAgent
+  })
+    .populate("user")
+    .exec();
+  try {
+    await _session.validateSession();
+    return done(null, _session.user._id);
+  } catch (err) {
+    done(null, false, { errors: { session: "is invalid" } });
+  }
+});
+
+const serializeUser = function(reqestUser, done) {
+  done(null, reqestUser.id);
 };
 
-const deserializeUser = function(user, done) {
-  done(null, user);
+const deserializeUser = function(id, done) {
+  const _user = User.findById(id);
+  done(null, _user.userToJSON());
 };
 
 export default {
   serializer: serializeUser,
   deserializer: deserializeUser,
-  localStrategy: localStrategy
+  localStrategy: localStrategy,
+  sessionStrategy: sessionStrategy
 };

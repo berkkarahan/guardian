@@ -72,33 +72,14 @@ const user = merge(
 );
 const userSchema = new mongoose.Schema(user, abstract.baseOptions);
 
-userSchema.pre("save", function(next) {
-  const currentUser = this;
-  if (!currentUser.isModified("password")) return next();
-  const hashedPwd = Promise.all([
-    bcrypt.hash(currentUser.password, 10),
-    Session.deleteMany({
-      user: currentUser._id
-    })
-  ])
-    .then(results => {
-      const [hashedPassword, deleteResult] = results;
-      return hashedPassword;
-    })
-    .catch(err => {
-      console.log(err);
-    });
-  currentUser.password = hashedPwd;
-});
-
-userSchema.methods.comparePassword = function(password, callback) {
+userSchema.methods.comparePassword = async function(password, callback) {
   bcrypt.compare(password, this.password, function(err, isMatch) {
     if (err) return callback(err);
     callback(null, isMatch);
   });
 };
 
-userSchema.methods.generateJWT = function() {
+userSchema.methods.generateJWT = async function() {
   const payload = {
     id: this._id,
     uuid: this.uuid,
@@ -113,13 +94,66 @@ userSchema.methods.generateJWT = function() {
   return jwt.sign(payload, config.jwt_secret, options);
 };
 
-userSchema.methods.toAuthJSON = function() {
+userSchema.methods.setUserSession = async function(
+  loginIP,
+  loginDate,
+  loginDevice
+) {
+  const userSession = new Session();
+  userSession.login_ip = loginIP;
+  userSession.login_date = loginDate;
+  userSession.login_device = loginDevice;
+  userSession.jwt_token = await this.generateJWT();
+  userSession.user = this;
+  await userSession.save();
+};
+
+userSchema.methods.validateUserSession = async function(loginIP, loginDevice) {
+  const userSession = await Session.findOne({
+    login_ip: loginIP,
+    login_device: loginDevice,
+    user: this._id
+  });
+  jwt.verify(userSession.jwt_token, config.jwt_secret);
+};
+
+userSchema.methods.invalidateUserSessions = async function() {
+  await Session.deleteMany({
+    user: this._id
+  });
+};
+
+userSchema.pre("save", async function(next) {
+  const currentUser = this;
+  if (!currentUser.isModified("password")) return next();
+  const hashedPwd = await Promise.all([
+    bcrypt.hash(currentUser.password, 10),
+    this.invalidateUserSessions()
+  ])
+    .then(results => {
+      const [hashedPassword, deleteResult] = results;
+      return hashedPassword;
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  currentUser.password = hashedPwd;
+});
+
+userSchema.pre("save", async function(next) {
+  if (!this.isModified("user_name") || !this.isModified("email")) {
+    return next();
+  }
+  await this.invalidateUserSessions();
+});
+
+userSchema.methods.userToJSON = async function() {
   return {
-    uui: this.uuid,
+    uuid: this.uuid,
+    id: this._id,
     username: this.username,
     email: this.email,
-    is_admin: this.admin,
-    token: this.generateJWT()
+    is_admin: this.admin
   };
 };
 

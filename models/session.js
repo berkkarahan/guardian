@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import moment from "moment";
 import { isIP } from "validator";
 import { merge } from "lodash";
+import jwt from "jsonwebtoken";
+import config from "../config/index";
 import abstract from "./abstract";
 
 const session = merge(
@@ -45,6 +47,10 @@ sessionSchema.virtual("requestsPerHour").get(function() {
   const duration = this.tillLastLogin;
   return this.requests / duration;
 });
+
+sessionSchema.methods.validateSession = async function() {
+  jwt.verify(this.jwt_token, config.jwt_secret);
+};
 
 const Session = mongoose.model("Session", sessionSchema);
 
