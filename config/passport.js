@@ -43,7 +43,7 @@ const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
     await _session.validateSession();
     return done(null, _session.user._id);
   } catch (err) {
-    done(null, false, { errors: { session: "is invalid" } });
+    return done(null, false, { errors: { session: "is invalid" } });
   }
 });
 
