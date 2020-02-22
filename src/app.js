@@ -9,6 +9,7 @@ import errorhandler from "errorhandler";
 import db from "./db";
 import passportSettings from "./config/passport";
 import config from "./envvars";
+import mainRouter from "./routes/main";
 
 const isProduction = config.node_env === "production";
 const connectDB = db.connect;
@@ -41,6 +42,7 @@ if (!isProduction) {
 connectDB();
 
 // Register routes here
+app.use("/", mainRouter);
 
 if (!isProduction) {
   app.use(function(err, req, res, next) {

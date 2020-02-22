@@ -1,6 +1,6 @@
 import express from "express";
-import usersController from "../controllers/user";
-import passportConfig from "../config/passport";
+import usersController from "../../../controllers/user";
+import passportConfig from "../../../config/passport";
 
 const authenticateSession = passportConfig.authenticate;
 const userRouter = express.Router();
