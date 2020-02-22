@@ -1,13 +1,14 @@
 import { Strategy } from "passport-local";
 import passportCustom from "passport-custom";
 import passport from "passport";
-import user from "../models/user";
+import userModel from "../models/user";
+import sessionModel from "../models/session";
 import ip from "../utils/ip";
 
 const getIP = ip.fn;
 
-const User = user.user;
-const Session = user.session;
+const User = userModel.user;
+const Session = sessionModel.session;
 const LocalStrategy = Strategy;
 
 const localStrategy = new LocalStrategy(
@@ -56,8 +57,8 @@ const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
 //   done(null, _user.userToJSON());
 // };
 
-const authenticateSession = async (req, res, next) => {
-  await passport.authenticate("session", { session: false }, async function(
+const authenticateSession = (req, res, next) => {
+  passport.authenticate("session", { session: false }, function(
     err,
     user,
     info

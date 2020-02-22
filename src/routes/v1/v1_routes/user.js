@@ -7,8 +7,8 @@ const userRouter = express.Router();
 
 // Routes withot session authentication
 userRouter.route("/get-user").post(usersController.preload);
-userRouter.post("/login-user", usersController.login);
-userRouter.post("/signup-user", usersController.create);
+userRouter.route("/login-user").post(usersController.login);
+userRouter.route("/signup-user").post(usersController.create);
 
 // Routes with session authentication
 userRouter
@@ -21,6 +21,6 @@ userRouter
 
 userRouter
   .route("/deactivate-user")
-  .post(authenticateSession, usersController.deactivateUser);
+  .post(authenticateSession, usersController.deactivate);
 
 export default userRouter;
