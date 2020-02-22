@@ -18,7 +18,7 @@ const review = merge(
     comfort: commentSchemas.comfort,
     vehicle: commentSchemas.vehicle
   },
-  abstract.baseOptions
+  abstract.baseSchema
 );
 const reviewSchema = new mongoose.Schema(review, abstract.baseOptions);
 

@@ -1,5 +1,6 @@
 import { Strategy } from "passport-local";
 import passportCustom from "passport-custom";
+import passport from "passport";
 import user from "../models/user";
 import ip from "../utils/ip";
 
@@ -19,13 +20,12 @@ const localStrategy = new LocalStrategy(
     if (!_user) {
       return done(null, false, { errors: { email: "is invalid" } });
     }
-    const _session = await Session.find({ user: _user._id }).exec();
-    if (!_session) {
-      return done(null, false, {
-        errors: { email: "matching session not found" }
-      });
-    }
-    done(null, _user);
+    await _user.comparePassword(password).then(res => {
+      if (!res) {
+        return done(null, false, { errors: { password: "is invalid" } });
+      }
+      return done(null, _user);
+    });
   }
 );
 
@@ -41,24 +41,41 @@ const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
     .exec();
   try {
     await _session.validateSession();
-    return done(null, _session.user._id);
+    return done(null, _session.user);
   } catch (err) {
     return done(null, false, { errors: { session: "is invalid" } });
   }
 });
 
-const serializeUser = function(reqestUser, done) {
-  done(null, reqestUser.id);
-};
+// const serializeUser = async function(reqestUser, done) {
+//   done(null, reqestUser.id);
+// };
 
-const deserializeUser = function(id, done) {
-  const _user = User.findById(id);
-  done(null, _user.userToJSON());
+// const deserializeUser = async function(id, done) {
+//   const _user = await User.findById(id);
+//   done(null, _user.userToJSON());
+// };
+
+const authenticateSession = async (req, res, next) => {
+  await passport.authenticate("session", { session: false }, async function(
+    err,
+    user,
+    info
+  ) {
+    if (err) {
+      return next(err);
+    }
+
+    if (user) {
+      req.user = user;
+      next();
+    }
+    return res.status(422).json(info);
+  })(req, res, next);
 };
 
 export default {
-  serializer: serializeUser,
-  deserializer: deserializeUser,
   localStrategy: localStrategy,
-  sessionStrategy: sessionStrategy
+  sessionStrategy: sessionStrategy,
+  authenticate: authenticateSession
 };

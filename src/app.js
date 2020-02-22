@@ -8,14 +8,15 @@ import bodyparser from "body-parser";
 import errorhandler from "errorhandler";
 import db from "./db";
 import passportSettings from "./config/passport";
-import config from "./config/index";
+import config from "./envvars";
 
 const isProduction = config.node_env === "production";
 const connectDB = db.connect;
 
 passport.use("local", passportSettings.localStrategy);
-passport.serializeUser(passportSettings.serializer);
-passport.deserializeUser(passportSettings.deserializer);
+passport.use("session", passportSettings.sessionStrategy);
+// passport.serializeUser(passportSettings.serializer);
+// passport.deserializeUser(passportSettings.deserializer);
 
 const app = express();
 
@@ -27,7 +28,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(bodyparser.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 
 mongoose.set("useNewUrlParser", true);
 mongoose.set("useCreateIndex", true);

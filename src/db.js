@@ -3,7 +3,7 @@ import user from "./models/user";
 import session from "./models/session";
 import review from "./models/review";
 import company from "./models/company";
-import config from "./config/index";
+import config from "./envvars";
 
 const isProduction = config.node_env === "production";
 const isTest = config.node_env === "test";
@@ -28,6 +28,7 @@ const connectDB = function() {
     mongoose.connect(config.mongo_dev);
     mongoose.set("debug", true);
   }
+  console.log("db connected");
 };
 
 export default {

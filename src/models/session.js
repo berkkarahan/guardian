@@ -3,7 +3,7 @@ import moment from "moment";
 import { isIP } from "validator";
 import { merge } from "lodash";
 import jwt from "jsonwebtoken";
-import config from "../config/index";
+import config from "../envvars";
 import abstract from "./abstract";
 
 const session = merge(

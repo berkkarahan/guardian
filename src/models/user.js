@@ -4,7 +4,7 @@ import { merge } from "lodash";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import abstract from "./abstract";
-import config from "../config";
+import config from "../envvars";
 import session from "./session";
 
 const Session = session.session;
@@ -72,11 +72,8 @@ const user = merge(
 );
 const userSchema = new mongoose.Schema(user, abstract.baseOptions);
 
-userSchema.methods.comparePassword = async function(password, callback) {
-  bcrypt.compare(password, this.password, function(err, isMatch) {
-    if (err) return callback(err);
-    callback(null, isMatch);
-  });
+userSchema.methods.comparePassword = async function(password) {
+  return await bcrypt.compare(password, this.password);
 };
 
 userSchema.methods.generateJWT = async function() {
