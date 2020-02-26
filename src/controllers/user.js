@@ -3,7 +3,7 @@ import passport from "passport";
 import { concat } from "lodash";
 import db from "../db";
 import ip from "../utils/ip";
-import errors from "../utils/errors";
+import customErrors from "../utils/errors";
 
 const User = db.models.user;
 const getIP = ip.fn;
@@ -24,7 +24,7 @@ const updateRestrictedFields = concat(createRestrictedFields, [
 ]);
 
 const getUserDetails = async (req, res, next) => {
-  const _user = await User.findById(req.body.id);
+  const _user = await User.findById(req.user.id);
   return _user.toJSON();
 };
 
@@ -103,7 +103,7 @@ const deactivateUser = async (req, res, next) => {
   if (!_user.deactivated) {
     _user.deactivated = moment();
   } else {
-    throw new errors.UserAlreadyDeactivated(
+    throw new customErrors.UserAlreadyDeactivated(
       `User with email ${_user.email} is already deactivated.`
     );
   }

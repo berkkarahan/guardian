@@ -1,5 +1,6 @@
 import { uuid } from "uuidv4";
 import { merge } from "lodash";
+import mongoose from "mongoose";
 
 const BaseModelSchema = {
   uuid: {
@@ -11,6 +12,14 @@ const BaseModelSchema = {
     unique: true
   }
 };
+
+const BaseCompanySchema = merge(
+  {
+    recordVerified: { type: Boolean, default: false },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+  },
+  BaseModelSchema
+);
 
 const _AbstractCommentSchema = {
   comment: { type: String },
@@ -36,5 +45,6 @@ const BaseSchemaOptions = merge({}, _AbstractTimestamps);
 export default {
   baseOptions: BaseSchemaOptions,
   baseSchema: BaseModelSchema,
+  baseCompanySchema: BaseCompanySchema,
   baseRatingSchema: BaseRatingSchema
 };

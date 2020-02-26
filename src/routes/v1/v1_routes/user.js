@@ -6,21 +6,17 @@ const authenticateSession = passportConfig.authenticate;
 const userRouter = express.Router();
 
 // Routes withot session authentication
-userRouter.route("/get-user").post(usersController.preload);
-userRouter.route("/login-user").post(usersController.login);
-userRouter.route("/signup-user").post(usersController.create);
+userRouter.route("/preload").post(usersController.preload);
+userRouter.route("/login").post(usersController.login);
+userRouter.route("/signup").post(usersController.create);
 
 // Routes with session authentication
-userRouter
-  .route("/get-user-details")
-  .post(authenticateSession, usersController.get);
+userRouter.route("/details").post(authenticateSession, usersController.get);
+
+userRouter.route("/update").post(authenticateSession, usersController.update);
 
 userRouter
-  .route("/update-user")
-  .post(authenticateSession, usersController.update);
-
-userRouter
-  .route("/deactivate-user")
+  .route("/deactivate")
   .post(authenticateSession, usersController.deactivate);
 
 export default userRouter;

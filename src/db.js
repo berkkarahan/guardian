@@ -4,7 +4,7 @@ import session from "./models/session";
 import review from "./models/review";
 import company from "./models/company";
 import config from "./envvars";
-import { MongooseConnection } from "./utils/errors";
+import customErrors from "./utils/errors";
 
 const isProduction = config.node_env === "production";
 const isTest = config.node_env === "test";
@@ -47,7 +47,7 @@ const connectDB = function() {
     return;
   }
   if (!isConnected()) {
-    throw new MongooseConnection(
+    throw new customErrors.MongooseConnection(
       "Mongoose is not connected to any MongoDB instance."
     );
   }

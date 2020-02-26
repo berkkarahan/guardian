@@ -7,7 +7,7 @@ const company = merge(
     name: { type: String },
     overallrating: { type: Number, min: 1, max: 5 }
   },
-  abstract.baseSchema
+  abstract.baseCompanySchema
 );
 const companySchema = new mongoose.Schema(company, abstract.baseOptions);
 
@@ -26,7 +26,7 @@ const travelSlots = merge(
     daytime: { type: String, enum: ["day", "night"] },
     company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" }
   },
-  abstract.baseSchema
+  abstract.baseCompanySchema
 );
 const travelSlotsSchema = new mongoose.Schema(
   travelSlots,

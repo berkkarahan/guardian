@@ -34,7 +34,7 @@ const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
   const userIP = getIP(req);
   const userAgent = req.get("user-agent");
   const _session = await Session.findOne({
-    user: req.user.id,
+    user: req.body.user.id,
     login_ip: userIP,
     login_device: userAgent
   })
