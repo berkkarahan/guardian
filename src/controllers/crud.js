@@ -36,9 +36,9 @@ export function initBase(Collection) {
   // Read one
   // ========
   const readOne = async (req, res) => {
-    const { _id } = req.body;
+    const { id } = req.body;
 
-    await Collection.findById(_id, (e, result) => {
+    await Collection.findById(id, (e, result) => {
       if (e) {
         res.status(500).send(e);
         console.log(e.message);
@@ -53,21 +53,17 @@ export function initBase(Collection) {
   // ======
   const update = async (req, res) => {
     const changedEntry = req.body;
-    await Collection.update(
-      { _id: req.body._id },
-      { $set: changedEntry },
-      e => {
-        if (e) res.sendStatus(500);
-        else res.sendStatus(200);
-      }
-    );
+    await Collection.update({ _id: req.body.id }, { $set: changedEntry }, e => {
+      if (e) res.sendStatus(500);
+      else res.sendStatus(200);
+    });
   };
 
   // ======
   // Remove
   // ======
   const remove = async (req, res) => {
-    Collection.remove({ _id: req.body._id }, e => {
+    Collection.remove({ _id: req.body.id }, e => {
       if (e) res.status(500).send(e);
       else res.sendStatus(200);
     });
@@ -83,7 +79,7 @@ export function initBase(Collection) {
   router.post("/all", readMany);
   router.post("/", readOne);
   router.post("/update", update);
-  router.delete("/delete", remove);
+  router.post("/delete", remove);
 
   return {
     router: router,
