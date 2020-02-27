@@ -12,7 +12,7 @@ const session = merge(
       type: String,
       validate: {
         validator: function(v) {
-          return isIP(v, [4, 6]);
+          return isIP(v);
         },
         message: props => `${props.value} is not a valid IP adress!`
       }

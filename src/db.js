@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+// import { MongoMemoryServer } from "mongodb-memory-server";
 import user from "./models/user";
 import session from "./models/session";
 import review from "./models/review";
@@ -30,8 +31,22 @@ const isConnected = function() {
   return true;
 };
 
+// const connectInMemory = async function() {
+//   const mongod = new MongoMemoryServer();
+//   const uri = await mongod.getConnectionString();
+//   const mongooseOpts = {
+//     useNewUrlParser: true,
+//     autoReconnect: true,
+//     reconnectTries: Number.MAX_VALUE,
+//     reconnectInterval: 1000
+//   };
+//   await mongoose.connect(uri, mongooseOpts);
+// };
+
 const connectDB = function() {
   if (isTest) {
+    // mongoose.connect(config.mongo_test);
+    // connectInMemory();
     mongoose.connect(config.mongo_test);
     return;
   }

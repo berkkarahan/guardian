@@ -6,12 +6,12 @@ export function initBase(Collection) {
   // ======
   const create = async (req, res) => {
     const newEntry = req.body;
-    await Collection.create(newEntry, (e, newEntry) => {
+    await Collection.create(newEntry, (e, cbNewEntry) => {
       if (e) {
         console.log(e);
         res.sendStatus(500);
       } else {
-        res.send(newEntry);
+        res.send(cbNewEntry);
       }
     });
   };

@@ -11,4 +11,6 @@ const config = {
   mongo_dev: process.env.MONGODB_URI
 };
 
+console.log(config);
+
 export default config;

@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import logger from "morgan";
+import morgan from "morgan";
 import cors from "cors";
 import helmet from "helmet";
 import passport from "passport";
@@ -14,7 +14,7 @@ import mainRouter from "./routes/main";
 const isProduction = config.node_env === "production";
 const connectDB = db.connect;
 
-passport.use("local", passportSettings.localStrategy);
+passport.use("local", passportSettings.customLocalStrategy);
 passport.use("session", passportSettings.sessionStrategy);
 // passport.serializeUser(passportSettings.serializer);
 // passport.deserializeUser(passportSettings.deserializer);
@@ -23,7 +23,7 @@ const app = express();
 
 app.use(helmet());
 app.use(cors());
-app.use(logger("dev"));
+app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyparser.urlencoded({ extended: true }));
@@ -42,7 +42,7 @@ if (!isProduction) {
 connectDB();
 
 // Register routes here
-app.use("/", mainRouter);
+app.use("/api", mainRouter);
 
 if (!isProduction) {
   app.use(function(err, req, res, next) {

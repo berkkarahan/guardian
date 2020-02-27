@@ -25,7 +25,7 @@ const updateRestrictedFields = concat(createRestrictedFields, [
 
 const getUserDetails = async (req, res, next) => {
   const _user = await User.findById(req.user.id);
-  return _user.toJSON();
+  return res.status(200).json(_user.toJSON());
 };
 
 const getUser = async (req, res, next) => {
@@ -43,6 +43,7 @@ const getUser = async (req, res, next) => {
 };
 
 const loginUser = async (req, res, next) => {
+  // eslint-disable-next-line array-callback-return
   Object.keys(req.body.user).map(key => {
     if (key !== "email" && key !== "password") {
       return res.status(422).json({
@@ -52,12 +53,9 @@ const loginUser = async (req, res, next) => {
       });
     }
   });
+
   // authtenticate with passport local
-  await passport.authenticate("local", { session: false }, async function(
-    err,
-    user,
-    info
-  ) {
+  passport.authenticate("local", { session: false }, async function(err, user) {
     if (err) {
       return next(err);
     }
@@ -70,9 +68,8 @@ const loginUser = async (req, res, next) => {
       await user.setUserSession(userIP, loginDate, userAgent);
 
       const userJson = await user.userToJSON();
-      return res.json({ user: userJson });
+      return res.status(200).json({ user: userJson });
     }
-    return res.status(422).json(info);
   })(req, res, next);
 };
 
@@ -88,7 +85,7 @@ const createUser = async (req, res, next) => {
     delete _user[key];
   });
   await _user.save();
-  return _user;
+  return res.status(201).json(_user);
 };
 
 const updateUser = async (req, res, next) => {
@@ -96,6 +93,7 @@ const updateUser = async (req, res, next) => {
     delete req.body[key];
   });
   await User.findOneAndUpdate({ _id: req.user.id }, req.body);
+  return res.status(200);
 };
 
 const deactivateUser = async (req, res, next) => {
@@ -107,6 +105,8 @@ const deactivateUser = async (req, res, next) => {
       `User with email ${_user.email} is already deactivated.`
     );
   }
+  await _user.save();
+  return res.status(200);
 };
 
 export default {

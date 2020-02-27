@@ -47,7 +47,7 @@ const user = merge(
       type: String,
       validate: {
         validator: function(v) {
-          return isIP(v, [4, 6]);
+          return isIP(v);
         },
         message: props => `${props.value} is not a valid IP adress!`
       }
@@ -56,7 +56,7 @@ const user = merge(
       type: String,
       validate: {
         validator: function(v) {
-          return isIP(v, [4, 6]);
+          return isIP(v);
         },
         message: props => `${props.value} is not a valid IP adress!`
       }
@@ -96,13 +96,18 @@ userSchema.methods.setUserSession = async function(
   loginDate,
   loginDevice
 ) {
-  const userSession = new Session();
-  userSession.login_ip = loginIP;
-  userSession.login_date = loginDate;
-  userSession.login_device = loginDevice;
-  userSession.jwt_token = await this.generateJWT();
-  userSession.user = this;
-  await userSession.save();
+  const jwtToken = await this.generateJWT();
+  await Session.findOneAndUpdate(
+    { user: this },
+    {
+      login_ip: loginIP,
+      login_date: loginDate,
+      login_device: loginDevice,
+      jwt_token: jwtToken,
+      user: this
+    },
+    { upsert: true }
+  );
 };
 
 userSchema.methods.validateUserSession = async function(loginIP, loginDevice) {
@@ -128,6 +133,7 @@ userSchema.pre("save", async function(next) {
     this.invalidateUserSessions()
   ])
     .then(results => {
+      // eslint-disable-next-line no-unused-vars
       const [hashedPassword, deleteResult] = results;
       return hashedPassword;
     })

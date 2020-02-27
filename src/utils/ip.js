@@ -1,10 +1,18 @@
+import ip6addr from "ip6addr";
+
 const getIpInfo = req => {
   const xForwardedFor = (req.headers["x-forwarded-for"] || "").replace(
     /:\d+$/,
     ""
   );
-  const ip = xForwardedFor || req.connection.remoteAddress;
-  return ip;
+  const addr = ip6addr.parse(xForwardedFor || req.connection.remoteAddress);
+  let ipv4 = "empty";
+  try {
+    ipv4 = addr.toString({ format: "v4" });
+  } catch (error) {
+    ipv4 = "127.0.0.1";
+  }
+  return ipv4;
 };
 
 const getIpInfoMiddleware = async (req, res, next) => {

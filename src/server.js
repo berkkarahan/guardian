@@ -8,3 +8,5 @@ const { port } = vars;
 const listener = app.listen(port, function() {
   console.log(`Listening on port: ${listener.address().port}`);
 });
+
+export default listener;

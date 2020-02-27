@@ -2,7 +2,8 @@
   "env": {
     "browser": true,
     "es2020": true,
-    "node": true
+    "node": true,
+    "jest": true
   },
   "extends": ["airbnb-base", "prettier", "plugin:node/recommended"],
   "plugins": ["prettier"],
@@ -15,6 +16,7 @@
     "sourceType": "module"
   },
   "rules": {
+    "node/no-unpublished-import":"off",
     "prettier/prettier": "error",
     "node/no-unsupported-features/es-syntax": "off",
     "import/prefer-default-export": "off",

@@ -30,6 +30,25 @@ const localStrategy = new LocalStrategy(
   }
 );
 
+const customLocalStrategy = new passportCustom.Strategy(async function(
+  req,
+  done
+) {
+  const { email } = req.body.user;
+  const { password } = req.body.user;
+
+  const _user = await User.findOne({ email: email });
+  if (!_user) {
+    return done(null, false, { errors: { email: "is invalid" } });
+  }
+  await _user.comparePassword(password).then(res => {
+    if (!res) {
+      return done(null, false, { errors: { password: "is invalid" } });
+    }
+    return done(null, _user);
+  });
+});
+
 const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
   const userIP = getIP(req);
   const userAgent = req.get("user-agent");
@@ -78,5 +97,6 @@ const authenticateSession = (req, res, next) => {
 export default {
   localStrategy: localStrategy,
   sessionStrategy: sessionStrategy,
+  customLocalStrategy: customLocalStrategy,
   authenticate: authenticateSession
 };
