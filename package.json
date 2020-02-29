@@ -12,19 +12,21 @@
     "test": "jest --detectOpenHandles --runInBand --forceExit --testTimeout=10000",
     "eslint": "./node_modules/.bin/eslint --ignore-path .gitignore  --ext js --fix . .config"
   },
-  "jest":{
-    "testEnvironment":"node",
-    "setupFilesAfterEnv":["./src/testSetup.js"]
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "./src/testSetup.js"
+    ]
   },
   "author": "bkarahan",
   "license": "ISC",
   "dependencies": {
     "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.8.4",
+    "@babel/core": "^7.8.6",
     "@babel/node": "^7.8.4",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/polyfill": "^7.8.3",
-    "@babel/preset-env": "^7.8.4",
+    "@babel/preset-env": "^7.8.6",
     "babel-plugin-add-module-exports": "^1.0.2",
     "bcrypt": "^3.0.8",
     "body-parser": "^1.19.0",
@@ -35,21 +37,21 @@
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "express-winston": "^4.0.2",
-    "helmet": "^3.21.2",
+    "helmet": "^3.21.3",
     "ip6addr": "^0.2.3",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "mongodb-memory-server": "^6.2.4",
-    "mongoose": "^5.8.11",
+    "mongodb-memory-server": "^6.3.1",
+    "mongoose": "^5.9.2",
     "morgan": "^1.9.1",
     "node-pre-gyp": "^0.14.0",
-    "nodemailer": "^6.4.2",
+    "nodemailer": "^6.4.3",
     "nodemon": "^2.0.2",
     "passport": "^0.4.1",
     "passport-custom": "^1.1.1",
     "passport-local": "^1.0.0",
-    "uuidv4": "^6.0.2",
+    "uuidv4": "^6.0.5",
     "validator": "^12.2.0",
     "winston": "^3.2.1"
   },
@@ -65,10 +67,9 @@
     "eslint-plugin-node": "^11.0.0",
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-react": "^7.18.3",
-    "eslint-plugin-react-hooks": "^2.3.0",
+    "eslint-plugin-react-hooks": "^2.5.0",
     "jest": "^25.1.0",
     "prettier": "^1.19.1",
-    "regenerator-runtime": "^0.13.3",
     "supertest": "^4.0.2"
   }
 }
