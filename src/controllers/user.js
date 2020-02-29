@@ -55,9 +55,13 @@ const loginUser = async (req, res, next) => {
   });
 
   // authtenticate with passport local
-  passport.authenticate("local", { session: false }, async function(err, user) {
+  await passport.authenticate("local", { session: false }, async function(
+    err,
+    user,
+    info
+  ) {
     if (err) {
-      return next(err);
+      return await res.status(403).json(info);
     }
 
     if (user) {
@@ -68,8 +72,9 @@ const loginUser = async (req, res, next) => {
       await user.setUserSession(userIP, loginDate, userAgent);
 
       const userJson = await user.userToJSON();
-      return res.status(200).json({ user: userJson });
+      return await res.status(200).json({ user: userJson });
     }
+    return await res.status(403).json(info);
   })(req, res, next);
 };
 
