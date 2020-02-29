@@ -50,6 +50,7 @@ const customLocalStrategy = new passportCustom.Strategy(async function(
 });
 
 const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
+  console.log(req.body.user);
   const userIP = getIP(req);
   const userAgent = req.get("user-agent");
   const _session = await Session.findOne({
@@ -76,21 +77,21 @@ const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
 //   done(null, _user.userToJSON());
 // };
 
-const authenticateSession = (req, res, next) => {
-  passport.authenticate("session", { session: false }, function(
+const authenticateSession = async (req, res, next) => {
+  await passport.authenticate("session", { session: false }, async function(
     err,
     user,
     info
   ) {
     if (err) {
-      return next(err);
+      return await next(err);
     }
 
     if (user) {
       req.user = user;
-      next();
+      return await next();
     }
-    return res.status(422).json(info);
+    return await res.status(422).json(info);
   })(req, res, next);
 };
 

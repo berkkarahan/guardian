@@ -30,16 +30,17 @@ const getUserDetails = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
   let loadedUser;
-  if (req.body.username) {
-    loadedUser = await User.find({ user_name: req.body.username }).exec();
+  if (req.body.user.username) {
+    loadedUser = await User.findOne({ user_name: req.body.user.username });
   }
-  if (req.body.email && !loadedUser) {
-    loadedUser = await User.find({ email: req.body.email }).exec();
+  if (req.body.user.email && !loadedUser) {
+    loadedUser = await User.findOne({ email: req.body.user.email });
   }
   if (!loadedUser) {
-    res.status(200).json({ message: "User not found." });
+    res.status(403).json({ message: "User not found." });
   }
-  res.status(200).json({ user: loadedUser.userToJSON() });
+  const userJson = await loadedUser.userToJSON();
+  await res.status(200).json({ user: userJson });
 };
 
 const loginUser = async (req, res, next) => {
@@ -95,10 +96,10 @@ const createUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   updateRestrictedFields.forEach(key => {
-    delete req.body[key];
+    delete req.body.user.update[key];
   });
-  await User.findOneAndUpdate({ _id: req.user.id }, req.body);
-  return res.status(200);
+  await User.findOneAndUpdate({ _id: req.user._id }, req.body.user.update);
+  return await res.status(200).send();
 };
 
 const deactivateUser = async (req, res, next) => {

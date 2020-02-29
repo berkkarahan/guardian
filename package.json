@@ -9,8 +9,12 @@
     "serve": "node dist/server.js",
     "start": "nodemon --exec babel-node src/server.js",
     "pretest": "cross-env NODE_ENV=test eslint --ignore-path .gitignore . && npm run build",
-    "test": "mocha --timeout 10000 --require @babel/register",
+    "test": "jest --detectOpenHandles --runInBand --forceExit --testTimeout=10000",
     "eslint": "./node_modules/.bin/eslint --ignore-path .gitignore  --ext js --fix . .config"
+  },
+  "jest":{
+    "testEnvironment":"node",
+    "setupFilesAfterEnv":["./src/testSetup.js"]
   },
   "author": "bkarahan",
   "license": "ISC",
@@ -51,8 +55,6 @@
   },
   "devDependencies": {
     "@babel/register": "^7.8.6",
-    "chai": "^4.2.0",
-    "chai-http": "^4.3.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-config-airbnb-base": "^14.0.0",
@@ -65,7 +67,6 @@
     "eslint-plugin-react": "^7.18.3",
     "eslint-plugin-react-hooks": "^2.3.0",
     "jest": "^25.1.0",
-    "mocha": "^7.1.0",
     "prettier": "^1.19.1",
     "regenerator-runtime": "^0.13.3",
     "supertest": "^4.0.2"
