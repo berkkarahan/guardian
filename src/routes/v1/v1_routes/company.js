@@ -1,16 +1,68 @@
+import express from "express";
 import { initBase } from "../../../controllers/crud";
 import company from "../../../controllers/company";
 import db from "../../../db";
+import permissions from "../../../utils/permissions";
+import passportConfig from "../../../config/passport";
 
+const companyRouter = express.Router();
 const companyCRUD = initBase(db.models.company);
-const companyRouter = companyCRUD.router;
 
-companyRouter.post("/verify", company.verify.company);
+// admin only routes
+companyRouter.post(
+  "/create",
+  passportConfig.authenticate,
+  permissions.isadmin,
+  companyCRUD.controllers.create
+);
+companyRouter.post(
+  "/update",
+  passportConfig.authenticate,
+  permissions.isadmin,
+  companyCRUD.controllers.update
+);
+companyRouter.post(
+  "/remove",
+  passportConfig.authenticate,
+  permissions.isadmin,
+  companyCRUD.controllers.remove
+);
 
+companyRouter.post(
+  "/verify",
+  passportConfig.authenticate,
+  permissions.isadmin,
+  company.verify.company
+);
+
+const travelslotsRouter = express.Router();
 const travelslotsCRUD = initBase(db.models.travelslots);
-const travelslotsRouter = travelslotsCRUD.router;
+// admin only routes
+travelslotsRouter.post(
+  "/create",
+  passportConfig.authenticate,
+  permissions.isadmin,
+  travelslotsCRUD.controllers.create
+);
+travelslotsRouter.post(
+  "/update",
+  passportConfig.authenticate,
+  permissions.isadmin,
+  travelslotsCRUD.controllers.update
+);
+travelslotsRouter.post(
+  "/remove",
+  passportConfig.authenticate,
+  permissions.isadmin,
+  travelslotsCRUD.controllers.remove
+);
 
-travelslotsRouter.post("/verify", company.verify.travelslot);
+travelslotsRouter.post(
+  "/verify",
+  passportConfig.authenticate,
+  permissions.isadmin,
+  company.verify.travelslot
+);
 
 export default {
   company: companyRouter,
