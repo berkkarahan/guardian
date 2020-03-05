@@ -38,6 +38,7 @@ const customLocalStrategy = new passportCustom.Strategy(async function(
   const { password } = req.body.user;
 
   const _user = await User.findOne({ email: email });
+  console.log(_user);
   if (!_user) {
     return done(null, false, { errors: { email: "is invalid" } });
   }

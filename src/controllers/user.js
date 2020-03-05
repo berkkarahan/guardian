@@ -19,8 +19,7 @@ const createRestrictedFields = [
 const updateRestrictedFields = concat(createRestrictedFields, [
   "timestamp_register",
   "activated",
-  "register_ip",
-  "verification_token"
+  "register_ip"
 ]);
 
 const getUserDetails = async (req, res, next) => {
@@ -62,6 +61,8 @@ const loginUser = async (req, res, next) => {
     info
   ) {
     if (err) {
+      console.log(err);
+      console.log(info);
       return await res.status(403).json(info);
     }
 
@@ -77,6 +78,14 @@ const loginUser = async (req, res, next) => {
     }
     return await res.status(403).json(info);
   })(req, res, next);
+};
+
+const logoutUser = async (req, res, next) => {
+  const _user = await User.findById(req.user._id);
+  const userIP = getIP(req);
+  const userAgent = req.get("user-agent");
+  await _user.deleteUserSession(userIP, userAgent);
+  return res.status(200).send();
 };
 
 const createUser = async (req, res, next) => {
@@ -121,5 +130,6 @@ export default {
   create: createUser,
   update: updateUser,
   deactivate: deactivateUser,
-  login: loginUser
+  login: loginUser,
+  logout: logoutUser
 };

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 // import { MongoMemoryServer } from "mongodb-memory-server";
 import user from "./models/user";
+import token from "./models/tokens";
 import session from "./models/session";
 import review from "./models/review";
 import company from "./models/company";
@@ -16,6 +17,7 @@ const Session = session.session;
 const Review = review.review;
 const Company = company.company;
 const Travelslots = company.travelslots;
+const Token = token.token;
 
 const isConnected = function() {
   const state = mongoose.connections
@@ -75,6 +77,7 @@ export default {
     session: Session,
     review: Review,
     company: Company,
-    travelslots: Travelslots
+    travelslots: Travelslots,
+    token: Token
   }
 };

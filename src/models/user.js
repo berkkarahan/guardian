@@ -65,8 +65,7 @@ const user = merge(
     timestamp_last_login: { type: Date },
     activated: { type: Date },
     deactivated: { type: Date },
-    verified: { type: Date },
-    verification_token: { type: String }
+    verified: { type: Date }
   },
   abstract.baseSchema
 );
@@ -90,6 +89,8 @@ userSchema.methods.generateJWT = async function() {
   };
   return jwt.sign(payload, config.jwt_secret, options);
 };
+
+// Session methods for User
 
 userSchema.methods.setUserSession = async function(
   loginIP,
@@ -117,6 +118,14 @@ userSchema.methods.validateUserSession = async function(loginIP, loginDevice) {
     user: this._id
   });
   jwt.verify(userSession.jwt_token, config.jwt_secret);
+};
+
+userSchema.methods.deleteUserSession = async function(loginIP, loginDevice) {
+  await Session.findOneAndDelete({
+    login_ip: loginIP,
+    login_device: loginDevice,
+    user: this._id
+  });
 };
 
 userSchema.methods.invalidateUserSessions = async function() {
