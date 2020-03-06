@@ -25,7 +25,7 @@ companyRouter.post(
   "/remove",
   passportConfig.authenticate,
   permissions.isadmin,
-  companyCRUD.controllers.remove
+  companyCRUD.controllers.delete
 );
 
 companyRouter.post(
@@ -54,7 +54,7 @@ travelslotsRouter.post(
   "/remove",
   passportConfig.authenticate,
   permissions.isadmin,
-  travelslotsCRUD.controllers.remove
+  travelslotsCRUD.controllers.delete
 );
 
 travelslotsRouter.post(
