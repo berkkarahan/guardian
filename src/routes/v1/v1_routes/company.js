@@ -13,13 +13,13 @@ companyRouter.post(
   "/create",
   passportConfig.authenticate,
   permissions.isadmin,
-  companyCRUD.controllers.create
+  company.create.company
 );
 companyRouter.post(
   "/update",
   passportConfig.authenticate,
   permissions.isadmin,
-  companyCRUD.controllers.update
+  company.update.company
 );
 companyRouter.post(
   "/remove",
@@ -35,20 +35,25 @@ companyRouter.post(
   company.verify.company
 );
 
+// public routes
+companyRouter.post("/", companyCRUD.controllers.selectOne);
+companyRouter.post("/all", company.readMany.company);
+
 const travelslotsRouter = express.Router();
 const travelslotsCRUD = initBase(db.models.travelslots);
+
 // admin only routes
+// travelSlot creatin is not admin only but will still require verification.
 travelslotsRouter.post(
   "/create",
   passportConfig.authenticate,
-  permissions.isadmin,
-  travelslotsCRUD.controllers.create
+  company.create.travelslot
 );
 travelslotsRouter.post(
   "/update",
   passportConfig.authenticate,
   permissions.isadmin,
-  travelslotsCRUD.controllers.update
+  company.update.travelslot
 );
 travelslotsRouter.post(
   "/remove",
@@ -63,6 +68,10 @@ travelslotsRouter.post(
   permissions.isadmin,
   company.verify.travelslot
 );
+
+// logged in routes
+travelslotsRouter.post("/", travelslotsCRUD.controllers.selectOne);
+travelslotsRouter.post("/all", company.readMany.travelslot);
 
 export default {
   company: companyRouter,
