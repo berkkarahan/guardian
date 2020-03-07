@@ -11,15 +11,15 @@ const Session = session.session;
 
 const user = merge(
   {
-    user_name: {
+    userName: {
       type: String,
       required: [true, "can't be blank"],
       unique: true,
       index: true,
       lowercase: true
     },
-    first_name: { type: String },
-    last_name: { type: String },
+    firstName: { type: String },
+    lastName: { type: String },
     email: {
       type: String,
       validate: {
@@ -79,7 +79,7 @@ userSchema.methods.generateJWT = async function() {
   const payload = {
     id: this._id,
     uuid: this.uuid,
-    username: this.user_name,
+    username: this.userName,
     email: this.email,
     is_admin: this.is_admin
   };
@@ -153,7 +153,7 @@ userSchema.pre("save", async function(next) {
 });
 
 userSchema.pre("save", async function(next) {
-  if (!this.isModified("user_name") || !this.isModified("email")) {
+  if (!this.isModified("userName") || !this.isModified("email")) {
     return next();
   }
   await this.invalidateUserSessions();

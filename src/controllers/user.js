@@ -30,7 +30,7 @@ const getUserDetails = async (req, res, next) => {
 const getUser = async (req, res, next) => {
   let loadedUser;
   if (req.body.user.username) {
-    loadedUser = await User.findOne({ user_name: req.body.user.username });
+    loadedUser = await User.findOne({ userName: req.body.user.username });
   }
   if (req.body.user.email && !loadedUser) {
     loadedUser = await User.findOne({ email: req.body.user.email });

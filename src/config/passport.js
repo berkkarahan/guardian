@@ -62,10 +62,12 @@ const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
     .populate("user")
     .exec();
   try {
-    await _session.validateSession();
+    if (!(await _session.validateSession())) {
+      return done(null, false, { errors: { session: "is invalid." } });
+    }
     return done(null, _session.user);
   } catch (err) {
-    return done(null, false, { errors: { session: "is invalid" } });
+    return done(null, false, { errors: { session: "an error caught." } });
   }
 });
 

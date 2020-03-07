@@ -22,7 +22,6 @@ const localAuthenticate = async (req, res, next) => {
 
 const authRouter = express.Router();
 
-// Routes without authentication
 authRouter.post("/preload", usersController.preload);
 authRouter.post("/login", usersController.login);
 authRouter.post("/logout", usersController.logout);

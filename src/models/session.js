@@ -49,7 +49,7 @@ sessionSchema.virtual("requestsPerHour").get(function() {
 });
 
 sessionSchema.methods.validateSession = async function() {
-  jwt.verify(this.jwt_token, config.jwt_secret);
+  return jwt.verify(this.jwt_token, config.jwt_secret);
 };
 
 const Session = mongoose.model("Session", sessionSchema);

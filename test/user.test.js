@@ -7,7 +7,7 @@ import user from "../src/models/user";
 const serverAddr = "127.0.0.1:9999";
 
 const mockUser = {
-  user_name: "testguy",
+  userName: "testguy",
   email: "testmail@testy.com",
   password: "test"
 };
@@ -29,7 +29,7 @@ describe("User endpoints", () => {
       .send(reqBody);
 
     expect(createRes.statusCode).toEqual(201);
-    expect(createRes.body.user.user_name).toEqual(mockUser.user_name);
+    expect(createRes.body.user.userName).toEqual(mockUser.userName);
     expect(createRes.body.user.email).toEqual(mockUser.email);
 
     const tokenUUID = createRes.body.token_uuid;
@@ -43,7 +43,7 @@ describe("User endpoints", () => {
 
   it("should login the created user", async () => {
     const loginBody = cloneDeep(reqBody);
-    delete loginBody.user.user_name;
+    delete loginBody.user.userName;
 
     const loginRes = await request(serverAddr)
       .post("/api/auth/login")
@@ -53,7 +53,7 @@ describe("User endpoints", () => {
   });
 
   it("should get user details without authentication", async () => {
-    const userBody = { user: { username: mockUser.user_name } };
+    const userBody = { user: { username: mockUser.userName } };
     const userRes = await request(serverAddr)
       .post("/api/auth/preload")
       .send(userBody);
@@ -63,7 +63,7 @@ describe("User endpoints", () => {
   });
 
   it("should update an existing user", async () => {
-    const userBody = { user: { username: mockUser.user_name } };
+    const userBody = { user: { username: mockUser.userName } };
     const userRes = await request(serverAddr)
       .post("/api/auth/preload")
       .send(userBody);
