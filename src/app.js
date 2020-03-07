@@ -6,13 +6,13 @@ import helmet from "helmet";
 import passport from "passport";
 import bodyparser from "body-parser";
 import errorhandler from "errorhandler";
-import swaggerUI from "swagger-ui-express";
+// import swaggerUI from "swagger-ui-express";
 import db from "./db";
 import passportSettings from "./config/passport";
 import config from "./envvars";
 import mainRouter from "./routes/main";
-import swaggerDoc from "./swaggerdoc";
-import * as specs from "./swaggerjsdoc";
+// import swaggerDoc from "./swaggerdoc";
+// import * as specs from "./swaggerjsdoc";
 
 const isProduction = config.node_env === "production";
 const connectDB = db.connect;
@@ -45,7 +45,7 @@ if (!isProduction) {
 connectDB();
 
 // Register api-spec here
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc));
+// app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc));
 // Register routes here
 app.use("/api", mainRouter);
 
