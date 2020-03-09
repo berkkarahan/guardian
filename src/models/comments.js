@@ -75,7 +75,7 @@ const vehicleReviewSchema = new mongoose.Schema(
 export default {
   driver: driverReviewSchema,
   hostess: hostessReviewSchema,
-  break: breakReviewSchema,
+  breaks: breakReviewSchema,
   travel: traveltimeReviewSchema,
   baggage: baggageReviewSchema,
   pet: petReviewSchema,

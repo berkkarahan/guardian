@@ -11,7 +11,7 @@ const review = merge(
     travelslot: { type: mongoose.Schema.Types.ObjectId, ref: "Travelslots" },
     driver: commentSchemas.driver,
     hostess: commentSchemas.hostess,
-    break: commentSchemas.break,
+    breaks: commentSchemas.breaks,
     travel: commentSchemas.travel,
     baggage: commentSchemas.baggage,
     pet: commentSchemas.pet,
