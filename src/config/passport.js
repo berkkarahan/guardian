@@ -56,14 +56,12 @@ const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
   const userAgent = req.get("user-agent");
   const { sessionId } = req.signedCookies;
 
-  // try {
-  // find session from req.cookies.sessionId
   const _session = await Session.findById(sessionId)
     .populate("user")
     .exec();
 
   if (!_session) {
-    done(null, false, { session: "is null" });
+    return done(null, false, { session: "is null" });
   }
 
   try {
