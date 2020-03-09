@@ -7,7 +7,7 @@
     "dev": "cross-env NODE_ENV=test nodemon --exec babel-node src/server.js",
     "build": "babel src --out-dir dist",
     "serve": "node dist/server.js",
-    "start": "nodemon --exec babel-node src/server.js",
+    "start": "cross-env NODE_ENV=production nodemon --exec babel-node src/server.js",
     "pretest": "cross-env NODE_ENV=test eslint --ignore-path .gitignore .",
     "test": "jest --detectOpenHandles --runInBand --forceExit --testTimeout=10000",
     "eslint": "./node_modules/.bin/eslint --ignore-path .gitignore  --ext js --fix . .config"

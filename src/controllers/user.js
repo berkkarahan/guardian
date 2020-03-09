@@ -6,6 +6,7 @@ import ip from "../utils/ip";
 import customErrors from "../utils/errors";
 
 const User = db.models.user;
+const Session = db.models.session;
 const getIP = ip.fn;
 
 const createRestrictedFields = [
@@ -73,7 +74,22 @@ const loginUser = async (req, res, next) => {
 
       await user.setUserSession(userIP, loginDate, userAgent);
 
+      const currentSession = await Session.findOne({
+        user: user,
+        login_ip: userIP,
+        login_device: userAgent
+      });
+
+      const cookieOptions = {
+        maxAge: 1 * 60 * 60 * 1000, // 1 hour
+        httpOnly: true,
+        signed: true
+      };
+
+      res.cookie("sessionId", currentSession._id, cookieOptions);
+
       const userJson = await user.userToJSON();
+
       return await res.status(200).json({ user: userJson });
     }
     return await res.status(403).json(info);

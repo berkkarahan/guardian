@@ -5,6 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import passport from "passport";
 import bodyparser from "body-parser";
+import cookieparser from "cookie-parser";
 import errorhandler from "errorhandler";
 import db from "./db";
 import passportSettings from "./config/passport";
@@ -27,6 +28,7 @@ app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyparser.urlencoded({ extended: true }));
+app.use(cookieparser(config.cookie_secret));
 
 app.use(passport.initialize());
 // app.use(passport.session());
@@ -45,6 +47,9 @@ connectDB();
 // app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc));
 // Register routes here
 app.use("/api", mainRouter);
+app.get("/cookies", (req, res, next) => {
+  res.json({ cookies: req.cookies, signedCookies: req.signedCookies });
+});
 
 if (!isProduction) {
   app.use(function(err, req, res, next) {
