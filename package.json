@@ -46,7 +46,6 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
-    "mongodb-memory-server": "^6.3.2",
     "mongoose": "^5.9.3",
     "morgan": "^1.9.1",
     "node-pre-gyp": "^0.14.0",

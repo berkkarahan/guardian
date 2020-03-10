@@ -2,14 +2,12 @@ import { Strategy } from "passport-local";
 import passportCustom from "passport-custom";
 import passport from "passport";
 import assert from "assert";
-import userModel from "../models/user";
-import sessionModel from "../models/session";
+import User from "../models/user";
+import Session from "../models/session";
 import ip from "../utils/ip";
 
 const getIP = ip.fn;
 
-const User = userModel.user;
-const Session = sessionModel.session;
 const LocalStrategy = Strategy;
 
 const localStrategy = new LocalStrategy(
