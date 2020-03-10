@@ -25,17 +25,17 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
     const value = pairs[1];
     const typeOfValue = typeof value;
     if (typeOfValue !== "object") {
-      queryObject = queryObject.where(key, value);
+      queryObject.where(key, value);
     } else if (typeOfValue === "object") {
       Object.entries(value).forEach(objectPairs => {
         const identifierType = objectPairs[0];
         const identifierValue = objectPairs[1];
         switch (identifierType) {
           case "min":
-            queryObject = queryObject.where(key).gte(identifierValue);
+            queryObject.where(key).gte(identifierValue);
             break;
           case "max":
-            queryObject = queryObject.where(key).lte(identifierValue);
+            queryObject.where(key).lte(identifierValue);
             break;
           default:
             break;

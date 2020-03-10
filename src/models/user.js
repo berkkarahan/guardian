@@ -69,6 +69,27 @@ const user = merge(
 );
 const userSchema = new mongoose.Schema(user, abstract.baseOptions);
 
+// Custom query methods
+
+userSchema.query.activeAndVerified = async function() {
+  return await this.find({
+    deactivated: { $exists: false },
+    verified: { $exists: true }
+  });
+};
+
+// User methods
+
+userSchema.methods.userToJSON = async function() {
+  return {
+    uuid: this.uuid,
+    id: this._id,
+    username: this.username,
+    email: this.email,
+    is_admin: this.admin
+  };
+};
+
 userSchema.methods.comparePassword = async function(password) {
   return await bcrypt.compare(password, this.password);
 };
@@ -109,15 +130,6 @@ userSchema.methods.setUserSession = async function(
   );
 };
 
-userSchema.methods.validateUserSession = async function(loginIP, loginDevice) {
-  const userSession = await Session.findOne({
-    login_ip: loginIP,
-    login_device: loginDevice,
-    user: this._id
-  });
-  jwt.verify(userSession.jwt_token, config.jwt_secret);
-};
-
 userSchema.methods.deleteUserSession = async function(loginIP, loginDevice) {
   await Session.findOneAndDelete({
     login_ip: loginIP,
@@ -131,6 +143,8 @@ userSchema.methods.invalidateUserSessions = async function() {
     user: this._id
   });
 };
+
+// Pre save hooks
 
 userSchema.pre("save", async function(next) {
   const currentUser = this;
@@ -156,16 +170,6 @@ userSchema.pre("save", async function(next) {
   }
   await this.invalidateUserSessions();
 });
-
-userSchema.methods.userToJSON = async function() {
-  return {
-    uuid: this.uuid,
-    id: this._id,
-    username: this.username,
-    email: this.email,
-    is_admin: this.admin
-  };
-};
 
 const User = mongoose.model("User", userSchema);
 

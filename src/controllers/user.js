@@ -105,29 +105,29 @@ const logoutUser = async (req, res, next) => {
 };
 
 const createUser = async (req, res, next) => {
-  const _user = new User(req.body.user);
+  const user = new User(req.body.user);
   const now = moment();
 
-  _user.timestamp_register = now;
-  _user.activated = now;
-  _user.register_ip = getIP(req);
+  user.timestamp_register = now;
+  user.activated = now;
+  user.register_ip = getIP(req);
 
   createRestrictedFields.forEach(key => {
-    delete _user[key];
+    delete user[key];
   });
-  await _user.save();
-  return res.status(201).json(_user);
+  await user.save();
+  return await res.status(201).json(user.userToJSON());
 };
 
 const updateUser = async (req, res, next) => {
   updateRestrictedFields.forEach(key => {
-    delete req.body.user.update[key];
+    delete req.body.user[key];
   });
   const user = await User.findOneAndUpdate(
     { _id: req.user._id },
-    req.body.user.update
+    req.body.user
   );
-  return await res.status(200).json(user);
+  return await res.status(200).json(user.userToJSON());
 };
 
 const deactivateUser = async (req, res, next) => {
