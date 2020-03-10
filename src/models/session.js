@@ -54,6 +54,4 @@ sessionSchema.methods.validateSession = async function() {
 
 const Session = mongoose.model("Session", sessionSchema);
 
-export default {
-  session: Session
-};
+export default Session;

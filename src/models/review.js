@@ -24,6 +24,4 @@ const reviewSchema = new mongoose.Schema(review, abstract.baseOptions);
 
 const Review = mongoose.model("Review", reviewSchema);
 
-export default {
-  review: Review
-};
+export default Review;

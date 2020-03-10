@@ -5,9 +5,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import abstract from "./abstract";
 import config from "../envvars";
-import session from "./session";
-
-const Session = session.session;
+import Session from "./session";
 
 const user = merge(
   {
@@ -171,6 +169,4 @@ userSchema.methods.userToJSON = async function() {
 
 const User = mongoose.model("User", userSchema);
 
-export default {
-  user: User
-};
+export default User;

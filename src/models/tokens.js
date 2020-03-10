@@ -4,9 +4,7 @@ import { uuid, isUuid } from "uuidv4";
 import moment from "moment";
 import config from "../envvars";
 import abstract from "./abstract";
-import user from "./user";
-
-const User = user.user;
+import User from "./user";
 
 const tokenSchema = new mongoose.Schema(
   {
@@ -63,6 +61,4 @@ tokenSchema.methods.generateVerificationToken = async function(userObject) {
 
 const Token = mongoose.model("Token", tokenSchema);
 
-export default {
-  token: Token
-};
+export default Token;

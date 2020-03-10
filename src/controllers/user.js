@@ -123,8 +123,11 @@ const updateUser = async (req, res, next) => {
   updateRestrictedFields.forEach(key => {
     delete req.body.user.update[key];
   });
-  await User.findOneAndUpdate({ _id: req.user._id }, req.body.user.update);
-  return await res.status(200).send();
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id },
+    req.body.user.update
+  );
+  return await res.status(200).json(user);
 };
 
 const deactivateUser = async (req, res, next) => {

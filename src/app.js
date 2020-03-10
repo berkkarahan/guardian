@@ -7,10 +7,19 @@ import passport from "passport";
 import bodyparser from "body-parser";
 import cookieparser from "cookie-parser";
 import errorhandler from "errorhandler";
+import AdminBro from "admin-bro";
+import AdminBroExpress from "admin-bro-expressjs";
+import AdminBroOptions from "./config/adminbro/options";
 import db from "./db";
 import passportSettings from "./config/passport";
 import config from "./envvars";
 import mainRouter from "./routes/main";
+
+//Setup adminbro
+const adminBro = new AdminBro(AdminBroOptions);
+
+//AdminBro router
+const broRouter = AdminBroExpress.buildRouter(adminBro);
 
 const isProduction = config.node_env === "production";
 const connectDB = db.connect;
@@ -45,6 +54,8 @@ connectDB();
 
 // Register api-spec here
 // app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDoc));
+// Register adminbro
+app.use(adminBro.options.rootPath, broRouter);
 // Register routes here
 app.use("/api", mainRouter);
 app.get("/cookies", (req, res, next) => {
