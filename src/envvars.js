@@ -9,7 +9,10 @@ const config = {
   jwt_expiresin: process.env.JWT_EXPIRESIN,
   mongo_test: process.env.MONGODB_URI_TEST,
   mongo_prod: process.env.MONGODB_URI,
-  mongo_dev: process.env.MONGODB_URI
+  mongo_dev: process.env.MONGODB_URI,
+  fe_url: process.env.FE_URL,
+  admin_email: process.env.ADMIN_EMAIL,
+  admin_pwd: process.env.ADMIN_PWD
 };
 
 export default config;

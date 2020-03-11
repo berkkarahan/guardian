@@ -58,8 +58,11 @@ connectDB();
 app.use(adminBro.options.rootPath, broRouter);
 // Register routes here
 app.use("/api", mainRouter);
-app.get("/cookies", (req, res, next) => {
-  res.json({ cookies: req.cookies, signedCookies: req.signedCookies });
+app.get("/", (req, res, next) => {
+  res.redirect(config.fe_url);
+});
+app.get("/ping", (req, res, next) => {
+  res.json({ message: "pong" });
 });
 
 if (!isProduction) {
