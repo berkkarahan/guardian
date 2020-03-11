@@ -72,7 +72,7 @@ describe("User endpoints", () => {
       .post("/api/users/update")
       .send(updateBody);
 
-    console.log(updateRes);
+    console.log(updateRes.body);
     // expect(updateRes.statusCode).toEqual(200);
   });
 });
