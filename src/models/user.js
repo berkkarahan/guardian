@@ -72,7 +72,7 @@ const userSchema = new mongoose.Schema(user, abstract.baseOptions);
 // Custom query methods
 
 userSchema.query.activeAndVerified = async function() {
-  return await this.find({
+  return this.find({
     deactivated: { $exists: false },
     verified: { $exists: true }
   });

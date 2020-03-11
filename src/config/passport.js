@@ -54,8 +54,15 @@ const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
   const userAgent = req.get("user-agent");
   const { sessionId } = req.signedCookies;
 
-  const _session = await Session.findById(sessionId)
-    .populate("user")
+  const _session = await Session.findOne({
+    _id: sessionId,
+    deactivated: { $exists: false },
+    verified: { $exists: true }
+  })
+    .populate({
+      path: "user",
+      match: { deactivated: { $exists: false }, verified: { $exists: true } }
+    })
     .exec();
 
   if (!_session) {
