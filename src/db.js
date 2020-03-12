@@ -1,12 +1,10 @@
 import mongoose from "mongoose";
-// import { MongoMemoryServer } from "mongodb-memory-server";
 import config from "./envvars";
 import customErrors from "./utils/errors";
 
 // Models setup
 import User from "./models/user";
 import Token from "./models/tokens";
-import Session from "./models/session";
 import Review from "./models/review";
 import company from "./models/company";
 
@@ -31,35 +29,21 @@ const isConnected = function() {
   return true;
 };
 
-// const connectInMemory = async function() {
-//   const mongod = new MongoMemoryServer();
-//   const uri = await mongod.getConnectionString();
-//   const mongooseOpts = {
-//     useNewUrlParser: true,
-//     autoReconnect: true,
-//     reconnectTries: Number.MAX_VALUE,
-//     reconnectInterval: 1000
-//   };
-//   await mongoose.connect(uri, mongooseOpts);
-// };
-
 const connectDB = function() {
   if (isTest) {
     // mongoose.connect(config.mongo_test);
     // connectInMemory();
-    mongoose.connect(config.mongo_test);
-    return;
+    return mongoose.connect(config.mongo_test);
   }
 
   if (isProduction) {
-    mongoose.connect(config.mongo_prod);
-    return;
+    return mongoose.connect(config.mongo_prod);
   }
 
   if (isDevelopment) {
-    mongoose.connect(config.mongo_dev);
+    const conn = mongoose.connect(config.mongo_dev);
     mongoose.set("debug", true);
-    return;
+    return conn;
   }
   if (!isConnected()) {
     throw new customErrors.MongooseConnection(
@@ -70,8 +54,6 @@ const connectDB = function() {
 
 const asyncConnectDB = async function() {
   if (isTest) {
-    // mongoose.connect(config.mongo_test);
-    // connectInMemory();
     return await mongoose.connect(config.mongo_test);
   }
 
@@ -96,7 +78,6 @@ export default {
   asyncConnect: asyncConnectDB,
   models: {
     user: User,
-    session: Session,
     review: Review,
     company: Company,
     travelslots: Travelslots,
