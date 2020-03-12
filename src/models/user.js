@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import abstract from "./abstract";
 import config from "../envvars";
-import Session from "./session";
 
 const user = merge(
   {
@@ -108,68 +107,6 @@ userSchema.methods.generateJWT = async function() {
   };
   return jwt.sign(payload, config.jwt_secret, options);
 };
-
-// Session methods for User
-
-userSchema.methods.setUserSession = async function(
-  loginIP,
-  loginDate,
-  loginDevice
-) {
-  const jwtToken = await this.generateJWT();
-  await Session.findOneAndUpdate(
-    { user: this },
-    {
-      login_ip: loginIP,
-      login_date: loginDate,
-      login_device: loginDevice,
-      jwt_token: jwtToken,
-      user: this
-    },
-    { upsert: true }
-  );
-};
-
-userSchema.methods.deleteUserSession = async function(loginIP, loginDevice) {
-  await Session.findOneAndDelete({
-    login_ip: loginIP,
-    login_device: loginDevice,
-    user: this._id
-  });
-};
-
-userSchema.methods.invalidateUserSessions = async function() {
-  await Session.deleteMany({
-    user: this._id
-  });
-};
-
-// Pre save hooks
-
-userSchema.pre("save", async function(next) {
-  const currentUser = this;
-  if (!currentUser.isModified("password")) return next();
-  const hashedPwd = await Promise.all([
-    bcrypt.hash(currentUser.password, 10),
-    this.invalidateUserSessions()
-  ])
-    .then(results => {
-      // eslint-disable-next-line no-unused-vars
-      const [hashedPassword, deleteResult] = results;
-      return hashedPassword;
-    })
-    .catch(err => {
-      console.log(err);
-    });
-  currentUser.password = hashedPwd;
-});
-
-userSchema.pre("save", async function(next) {
-  if (!this.isModified("userName") || !this.isModified("email")) {
-    return next();
-  }
-  await this.invalidateUserSessions();
-});
 
 const User = mongoose.model("User", userSchema);
 

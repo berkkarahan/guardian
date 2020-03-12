@@ -6,7 +6,6 @@ import ip from "../utils/ip";
 import customErrors from "../utils/errors";
 
 const User = db.models.user;
-const Session = db.models.session;
 const getIP = ip.fn;
 
 const createRestrictedFields = [
@@ -24,8 +23,8 @@ const updateRestrictedFields = concat(createRestrictedFields, [
 ]);
 
 const getUserDetails = async (req, res, next) => {
-  const _user = await User.findById(req.user.id);
-  return res.status(200).json(_user.toJSON());
+  const user = await User.findById(req.user._id);
+  return res.status(200).json(user.toJSON());
 };
 
 const getUser = async (req, res, next) => {
@@ -43,7 +42,7 @@ const getUser = async (req, res, next) => {
   await res.status(200).json({ user: userJson });
 };
 
-const loginUser = async (req, res, next) => {
+const loginUserv2 = async (req, res, next) => {
   // eslint-disable-next-line array-callback-return
   Object.keys(req.body.user).map(key => {
     if (key !== "email" && key !== "password") {
@@ -54,54 +53,22 @@ const loginUser = async (req, res, next) => {
       });
     }
   });
-
-  // authtenticate with passport local
-  await passport.authenticate("local", { session: false }, async function(
-    err,
-    user,
-    info
-  ) {
+  await passport.authenticate("local", async function(err, user, info) {
     if (err) {
-      console.log(err);
-      console.log(info);
       return await res.status(403).json(info);
     }
-
     if (user) {
-      const userIP = getIP(req);
-      const loginDate = moment();
-      const userAgent = req.get("user-agent");
-
-      await user.setUserSession(userIP, loginDate, userAgent);
-
-      const currentSession = await Session.findOne({
-        user: user,
-        login_ip: userIP,
-        login_device: userAgent
-      });
-
-      const cookieOptions = {
-        maxAge: 1 * 60 * 60 * 1000, // 1 hour
-        httpOnly: true,
-        signed: true
-      };
-
-      res.cookie("sessionId", currentSession._id, cookieOptions);
-
       const userJson = await user.userToJSON();
-
       return await res.status(200).json({ user: userJson });
     }
     return await res.status(403).json(info);
   })(req, res, next);
 };
 
-const logoutUser = async (req, res, next) => {
-  const _user = await User.findById(req.user._id);
-  const userIP = getIP(req);
-  const userAgent = req.get("user-agent");
-  await _user.deleteUserSession(userIP, userAgent);
-  return res.status(200).send();
+// Different from previous, this is served over GET request.
+const logoutUserv2 = async (req, res, next) => {
+  await req.logout();
+  res.redirect("/");
 };
 
 const createUser = async (req, res, next) => {
@@ -131,15 +98,15 @@ const updateUser = async (req, res, next) => {
 };
 
 const deactivateUser = async (req, res, next) => {
-  const _user = await User.findById(req.user.id);
-  if (!_user.deactivated) {
-    _user.deactivated = moment();
+  const user = await User.findById(req.user._id);
+  if (!user.deactivated) {
+    user.deactivated = moment();
   } else {
     throw new customErrors.UserAlreadyDeactivated(
-      `User with email ${_user.email} is already deactivated.`
+      `User with email ${user.email} is already deactivated.`
     );
   }
-  await _user.save();
+  await user.save();
   return res.status(200);
 };
 
@@ -149,6 +116,6 @@ export default {
   create: createUser,
   update: updateUser,
   deactivate: deactivateUser,
-  login: loginUser,
-  logout: logoutUser
+  login: loginUserv2,
+  logout: logoutUserv2
 };

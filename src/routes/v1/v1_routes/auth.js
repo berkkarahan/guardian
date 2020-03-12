@@ -24,7 +24,7 @@ const authRouter = express.Router();
 
 authRouter.post("/preload", usersController.preload);
 authRouter.post("/login", usersController.login);
-authRouter.post("/logout", usersController.logout);
+authRouter.get("/logout", usersController.logout);
 authRouter.post("/signup", usersController.create);
 
 // Route to create and send(not yet implemented) verification token
