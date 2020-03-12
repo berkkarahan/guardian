@@ -56,9 +56,20 @@ const localDeserializeUser = async function(id, done) {
   });
 };
 
+const isAuthenticated = async (req, res, next) => {
+  if (req.user) {
+    return next();
+  }
+
+  return res.status(401).json({
+    error: "User not authenticated"
+  });
+};
+
 export default {
   localStrategy: localStrategy,
   customLocalStrategy: customLocalStrategy,
   localSerializeUser: localSerializeUser,
-  localDeserializer: localDeserializeUser
+  localDeserializer: localDeserializeUser,
+  isAuthenticated: isAuthenticated
 };
