@@ -68,6 +68,13 @@ const user = merge(
 );
 const userSchema = new mongoose.Schema(user, abstract.baseOptions);
 
+// pre-save hash password
+userSchema.pre("save", async function(next) {
+  const currentUser = this;
+  if (!currentUser.isModified("password")) return next();
+  currentUser.password = await bcrypt.hash(currentUser.password, 10);
+});
+
 // Custom query methods
 
 userSchema.query.activeAndVerified = async function() {

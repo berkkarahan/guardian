@@ -19,8 +19,10 @@ import mainRouter from "./routes/main";
 //Setup adminbro
 const adminBro = new AdminBro(AdminBroOptions);
 
-//AdminBro router
-const broRouter = AdminBroExpress.buildRouter(adminBro);
+const ADMIN = {
+  email: config.admin_email,
+  password: config.admin_pwd
+};
 
 const isProduction = config.node_env === "production";
 
@@ -33,6 +35,18 @@ passport.deserializeUser(passportSettings.localDeserializer);
 
 const app = express();
 
+const adminRouter = AdminBroExpress.buildAuthenticatedRouter(adminBro, {
+  authenticate: async (email, password) => {
+    if (ADMIN.password === password && ADMIN.email === email) {
+      return ADMIN;
+    }
+    return null;
+  },
+  cookieName: "adminbro",
+  cookiePassword: config.cookie_secret
+});
+
+app.use(adminBro.options.rootPath, adminRouter);
 app.use(helmet());
 app.use(cors());
 app.use(morgan("combined"));
@@ -60,8 +74,6 @@ if (!isProduction) {
   app.use(errorhandler());
 }
 
-// Register adminbro
-app.use(adminBro.options.rootPath, broRouter);
 // Register routes here
 app.use("/api", mainRouter);
 app.get("/", (req, res, next) => {
