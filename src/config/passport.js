@@ -1,12 +1,7 @@
 import { Strategy } from "passport-local";
 import passportCustom from "passport-custom";
-import passport from "passport";
-import assert from "assert";
+import bcrypt from "bcrypt";
 import User from "../models/user";
-import Session from "../models/session";
-import ip from "../utils/ip";
-
-const getIP = ip.fn;
 
 const LocalStrategy = Strategy;
 
@@ -36,83 +31,46 @@ const customLocalStrategy = new passportCustom.Strategy(async function(
   const { email } = req.body.user;
   const { password } = req.body.user;
 
-  const _user = await User.findOne({ email: email });
+  const user = await User.findOne({ email: email });
 
-  if (!_user) {
+  if (!user) {
     return done(null, false, { errors: { email: "is invalid" } });
   }
-  await _user.comparePassword(password).then(res => {
+  await user.comparePassword(password).then(res => {
     if (!res) {
       return done(null, false, { errors: { password: "is invalid" } });
     }
-    return done(null, _user);
+    return done(null, user);
   });
 });
 
-const sessionStrategy = new passportCustom.Strategy(async function(req, done) {
-  const userIP = getIP(req);
-  const userAgent = req.get("user-agent");
-  const { sessionId } = req.signedCookies;
+const localSerializeUser = async function(user, done) {
+  done(null, user.id);
+};
 
-  const _session = await Session.findOne({
-    _id: sessionId,
-    deactivated: { $exists: false },
-    verified: { $exists: true }
-  })
-    .populate({
-      path: "user",
-      match: { deactivated: { $exists: false }, verified: { $exists: true } }
-    })
-    .exec();
-
-  if (!_session) {
-    return done(null, false, { session: "is null" });
-  }
-
-  try {
-    // Assert IP and userAgent matches session's variables
-    assert.equal(userIP, _session.login_ip);
-    assert.equal(userAgent, _session.login_device);
-
-    if (!(await _session.validateSession())) {
-      return done(null, false, { errors: { session: "is invalid." } });
-    }
-    return done(null, _session.user);
-  } catch (err) {
-    return done(null, false, { errors: { session: "an error caught." } });
-  }
-});
-
-// const serializeUser = async function(reqestUser, done) {
-//   done(null, reqestUser.id);
-// };
-
-// const deserializeUser = async function(id, done) {
-//   const _user = await User.findById(id);
-//   done(null, _user.userToJSON());
-// };
-
-const authenticateSession = async (req, res, next) => {
-  await passport.authenticate("session", { session: false }, async function(
-    err,
-    user,
-    info
-  ) {
+const localDeserializeUser = async function(id, done) {
+  await User.findById(id, (err, user) => {
     if (err) {
-      return await next(err);
+      return done(user);
     }
+    done(null, user);
+  });
+};
 
-    if (user) {
-      req.user = user;
-      return await next();
-    }
-    return await res.status(422).json(info);
-  })(req, res, next);
+const isAuthenticated = async (req, res, next) => {
+  if (req.user) {
+    return next();
+  }
+
+  return res.status(401).json({
+    error: "User not authenticated"
+  });
 };
 
 export default {
   localStrategy: localStrategy,
-  sessionStrategy: sessionStrategy,
   customLocalStrategy: customLocalStrategy,
-  authenticate: authenticateSession
+  localSerializeUser: localSerializeUser,
+  localDeserializer: localDeserializeUser,
+  isAuthenticated: isAuthenticated
 };
