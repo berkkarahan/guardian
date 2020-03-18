@@ -1,7 +1,7 @@
 import express from "express";
 import passportConfig from "../../../config/passport";
 import usersController from "../../../controllers/user";
-import verificationController from "../../../controllers/verification";
+import tokensController from "../../../controllers/tokens";
 
 const authRouter = express.Router();
 
@@ -14,10 +14,10 @@ authRouter.post("/signup", usersController.create);
 authRouter.post(
   "/verification",
   passportConfig.isAuthenticated,
-  verificationController.create
+  tokensController.verification.create
 );
 
 // Route with GET request to validate token from url.
-authRouter.get("/verification", verificationController.validate);
+authRouter.get("/verification", tokensController.verification.validate);
 
 export default authRouter;

@@ -49,11 +49,28 @@ tokenSchema.methods.verifyUser = async function() {
   return true;
 };
 
+tokenSchema.methods.resetPassword = async function(password) {
+  if (!this.validateToken()) {
+    return false;
+  }
+  await User.findByIdAndUpdate(this.user._id, { password: password });
+};
+
 tokenSchema.methods.generateVerificationToken = async function(userObject) {
   const jwtToken = await userObject.generateJWT();
   const currentToken = this;
   currentToken.jwt_token = jwtToken;
   currentToken.token_type = "verification";
+  currentToken.token_uuid = uuid();
+  currentToken.user = userObject;
+  await currentToken.save();
+};
+
+tokenSchema.methods.generatePasswordResetToken = async function(userObject) {
+  const jwtToken = await userObject.generateJWT();
+  const currentToken = this;
+  currentToken.jwt_token = jwtToken;
+  currentToken.token_type = "pwdreset";
   currentToken.token_uuid = uuid();
   currentToken.user = userObject;
   await currentToken.save();
