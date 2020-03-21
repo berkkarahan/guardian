@@ -27,25 +27,36 @@ const ADMIN = {
 
 const isProduction = config.node_env === "production";
 
+// Mongo-db store for express session
 const MongoStore = mongostore(session);
+const sessionMongoStore = new MongoStore({
+  mongooseConnection: mongoose.connection
+});
 
+// Passport serialization settings for session
 passport.use("local", passportSettings.customLocalStrategy);
-// passport.use("session", passportSettings.sessionStrategy);
 passport.serializeUser(passportSettings.localSerializeUser);
 passport.deserializeUser(passportSettings.localDeserializer);
 
 const app = express();
 
-const adminRouter = AdminBroExpress.buildAuthenticatedRouter(adminBro, {
-  authenticate: async (email, password) => {
-    if (ADMIN.password === password && ADMIN.email === email) {
-      return ADMIN;
-    }
-    return null;
+// Admin bro settings for the admin page
+const predefinedBroRouter = express.Router();
+const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
+  adminBro,
+  {
+    authenticate: async (email, password) => {
+      if (ADMIN.password === password && ADMIN.email === email) {
+        return ADMIN;
+      }
+      return null;
+    },
+    cookieName: "adminbro",
+    cookiePassword: config.cookie_secret
   },
-  cookieName: "adminbro",
-  cookiePassword: config.cookie_secret
-});
+  predefinedBroRouter,
+  { resave: false, saveUninitialized: true, store: sessionMongoStore }
+);
 
 app.use(adminBro.options.rootPath, adminRouter);
 app.use(helmet());
@@ -60,7 +71,7 @@ app.use(
     secret: config.cookie_secret,
     resave: false,
     saveUninitialized: true,
-    store: new MongoStore({ mongooseConnection: mongoose.connection })
+    store: sessionMongoStore
   })
 );
 
@@ -68,6 +79,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 mongoose.set("useNewUrlParser", true);
+mongoose.set("useFindAndModify", false);
 mongoose.set("useCreateIndex", true);
 mongoose.set("useUnifiedTopology", true);
 

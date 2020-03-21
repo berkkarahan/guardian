@@ -8,6 +8,7 @@ import config from "../envvars";
 
 const user = merge(
   {
+    title: { type: String },
     userName: {
       type: String,
       required: [true, "can't be blank"],
@@ -68,11 +69,19 @@ const user = merge(
 );
 const userSchema = new mongoose.Schema(user, abstract.baseOptions);
 
+// pre-save update title
+userSchema.pre("save", async function(next) {
+  const currentUser = this;
+  currentUser.title = `${currentUser.firstName} ${currentUser.lastName} - ${currentUser.email}`;
+  next();
+});
+
 // pre-save hash password
 userSchema.pre("save", async function(next) {
   const currentUser = this;
   if (!currentUser.isModified("password")) return next();
   currentUser.password = await bcrypt.hash(currentUser.password, 10);
+  next();
 });
 
 // Custom query methods
