@@ -5,9 +5,12 @@ import db from "../db";
 import ip from "../utils/ip";
 import customErrors from "../utils/errors";
 import tryCatch from "../utils/catcher";
+import config from "../envvars";
 
 const User = db.models.user;
 const getIP = ip.fn;
+
+const isProduction = config.node_env === "production";
 
 const createRestrictedFields = [
   "is_admin",
@@ -60,6 +63,11 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
     }
     if (user) {
       const userJson = await user.userToJSON();
+      req.login(user, loginError => {
+        if (loginError) {
+          throw new Error(loginError);
+        }
+      });
       return await res.status(200).json({ user: userJson });
     }
     return await res.status(403).json(info);
@@ -69,7 +77,11 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
 // Different from previous, this is served over GET request.
 const logoutUserv2 = tryCatch(async (req, res, next) => {
   await req.logout();
-  res.redirect("/");
+  if (!isProduction) {
+    res.status(200).send();
+  } else {
+    res.redirect("/");
+  }
 });
 
 const createUser = tryCatch(async (req, res, next) => {

@@ -1,5 +1,5 @@
 import db from "../db";
-import filterParser from "../utils/filters";
+import filterParser from "../utils/filters/filters";
 import tryCatch from "../utils/catcher";
 
 const Company = db.models.company;
@@ -23,9 +23,13 @@ const verifyTravelslot = tryCatch(async (req, res, next) => {
 
 // Needs pagination, limiting or skipping.
 const customReadMany = async (Collection, req, res, next) => {
-  const { filters } = req.body;
-  const parsedFilters = filterParser.parse(filters);
-  const queryObject = filterParser.query(Collection.find(), parsedFilters);
+  const { query, pagination } = req.body.filters;
+  const parsedFilters = filterParser.parse(query);
+  const queryObject = filterParser.query(
+    Collection.find(),
+    parsedFilters,
+    pagination
+  );
   const records = await queryObject.exec();
   await res.status(200).json(records);
 };

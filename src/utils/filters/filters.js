@@ -1,6 +1,6 @@
-const parseFilters = reqFilters => {
+const parseFilters = reqFiltersQuery => {
   const parsedQuery = {};
-  Object.entries(reqFilters).forEach(pairs => {
+  Object.entries(reqFiltersQuery).forEach(pairs => {
     const key = pairs[0];
     const value = pairs[1];
     if (key.includes("_")) {
@@ -19,7 +19,7 @@ const parseFilters = reqFilters => {
   return parsedQuery;
 };
 
-const buildMongooseQuery = (queryObject, parsedQuery) => {
+const buildMongooseQuery = (queryObject, parsedQuery, pagination) => {
   Object.entries(parsedQuery).forEach(pairs => {
     const key = pairs[0];
     const value = pairs[1];
@@ -43,7 +43,10 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
       });
     }
   });
-  return queryObject;
+  if (pagination) {
+    queryObject.limit(pagination.limit).skip(pagination.skip);
+  }
+  return queryObject.sort({ createdAt: -1 });
 };
 
 export default {

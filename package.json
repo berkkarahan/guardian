@@ -45,6 +45,7 @@
     "express-formidable": "^1.2.0",
     "express-session": "^1.17.0",
     "express-winston": "^4.0.2",
+    "flat": "^5.0.0",
     "helmet": "^3.21.3",
     "ip6addr": "^0.2.3",
     "jsonwebtoken": "^8.5.1",
