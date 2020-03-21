@@ -15,6 +15,7 @@ import AdminBroOptions from "./config/adminbro/options";
 import passportSettings from "./config/passport";
 import config from "./envvars";
 import mainRouter from "./routes/main";
+import tryCatch from "./utils/catcher";
 
 //Setup adminbro
 const adminBro = new AdminBro(AdminBroOptions);
@@ -79,20 +80,31 @@ app.use("/api", mainRouter);
 app.get("/", (req, res, next) => {
   res.redirect(config.fe_url);
 });
-app.get("/ping", (req, res, next) => {
+
+const pong = tryCatch(async (req, res, next) => {
   res.json({ message: "pong" });
 });
+app.get("/ping", pong);
+
+const error = tryCatch(async (req, res, next) => {
+  throw new Error("Error route.");
+});
+app.get("/error", error);
 
 if (!isProduction) {
   app.use(function(err, req, res, next) {
     console.log(err.stack);
 
-    res.status(err.status || 500);
+    const status = err.status || 500;
+
+    res.status(status);
 
     res.json({
       errors: {
         message: err.message,
-        error: err
+        error: err,
+        status: status,
+        stack: JSON.stringify(err.stack, null, 2)
       }
     });
   });

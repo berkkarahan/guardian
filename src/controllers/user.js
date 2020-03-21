@@ -4,6 +4,7 @@ import { concat } from "lodash";
 import db from "../db";
 import ip from "../utils/ip";
 import customErrors from "../utils/errors";
+import tryCatch from "../utils/catcher";
 
 const User = db.models.user;
 const getIP = ip.fn;
@@ -22,12 +23,12 @@ const updateRestrictedFields = concat(createRestrictedFields, [
   "register_ip"
 ]);
 
-const getUserDetails = async (req, res, next) => {
+const getUserDetails = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
   return res.status(200).json(user.toJSON());
-};
+});
 
-const getUser = async (req, res, next) => {
+const getUser = tryCatch(async (req, res, next) => {
   let loadedUser;
   if (req.body.user.username) {
     loadedUser = await User.findOne({ userName: req.body.user.username });
@@ -40,9 +41,9 @@ const getUser = async (req, res, next) => {
   }
   const userJson = await loadedUser.userToJSON();
   await res.status(200).json({ user: userJson });
-};
+});
 
-const loginUserv2 = async (req, res, next) => {
+const loginUserv2 = tryCatch(async (req, res, next) => {
   // eslint-disable-next-line array-callback-return
   Object.keys(req.body.user).map(key => {
     if (key !== "email" && key !== "password") {
@@ -63,15 +64,15 @@ const loginUserv2 = async (req, res, next) => {
     }
     return await res.status(403).json(info);
   })(req, res, next);
-};
+});
 
 // Different from previous, this is served over GET request.
-const logoutUserv2 = async (req, res, next) => {
+const logoutUserv2 = tryCatch(async (req, res, next) => {
   await req.logout();
   res.redirect("/");
-};
+});
 
-const createUser = async (req, res, next) => {
+const createUser = tryCatch(async (req, res, next) => {
   const user = new User(req.body.user);
   const now = moment();
 
@@ -84,9 +85,9 @@ const createUser = async (req, res, next) => {
   });
   await user.save();
   return await res.status(201).json(user.userToJSON());
-};
+});
 
-const updateUser = async (req, res, next) => {
+const updateUser = tryCatch(async (req, res, next) => {
   updateRestrictedFields.forEach(key => {
     delete req.body.user[key];
   });
@@ -95,9 +96,9 @@ const updateUser = async (req, res, next) => {
     req.body.user
   );
   return await res.status(200).json(user.userToJSON());
-};
+});
 
-const deactivateUser = async (req, res, next) => {
+const deactivateUser = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
   if (!user.deactivated) {
     user.deactivated = moment();
@@ -108,7 +109,7 @@ const deactivateUser = async (req, res, next) => {
   }
   await user.save();
   return res.status(200);
-};
+});
 
 export default {
   preload: getUser,
