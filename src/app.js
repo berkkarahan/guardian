@@ -55,7 +55,7 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
     cookiePassword: config.cookie_secret
   },
   predefinedBroRouter,
-  { resave: false, saveUninitialized: true, store: sessionMongoStore }
+  { resave: false, saveUninitialized: false, store: sessionMongoStore }
 );
 
 app.use(adminBro.options.rootPath, adminRouter);
@@ -70,7 +70,7 @@ app.use(
   session({
     secret: config.cookie_secret,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: sessionMongoStore
   })
 );
