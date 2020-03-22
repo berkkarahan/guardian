@@ -60,6 +60,7 @@
     "passport-custom": "^1.1.1",
     "passport-local": "^1.0.0",
     "pm2": "^4.2.3",
+    "rate-limit-mongo": "^2.1.0",
     "uuidv4": "^6.0.6",
     "validator": "^12.2.0"
   },

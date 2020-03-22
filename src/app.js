@@ -11,19 +11,65 @@ import errorhandler from "errorhandler";
 import AdminBro from "admin-bro";
 import AdminBroExpress from "admin-bro-expressjs";
 import mongostore from "connect-mongo";
+import rateLimit from "express-rate-limit";
+import RateLimitMongo from "rate-limit-mongo";
 import AdminBroOptions from "./config/adminbro/options";
 import passportSettings from "./config/passport";
 import config from "./envvars";
 import mainRouter from "./routes/main";
 import tryCatch from "./utils/catcher";
-import limiter from "./routes/limiter";
+import db from "./db";
+
+// User model
+const User = db.models.user;
+
+// setup rate-limiter
+const generalLimiter = rateLimit({
+  store: new RateLimitMongo({
+    uri: config.mongo_prod
+  }),
+  max: 100,
+  windowMs: 15 * 60 * 1000
+});
 
 //Setup adminbro
 const adminBro = new AdminBro(AdminBroOptions);
 
+// Change this to ADMIN users of the system, not a static admin user
 const ADMIN = {
   email: config.admin_email,
   password: config.admin_pwd
+};
+const staticAdminAuth = async (email, password) => {
+  if (ADMIN.password === password && ADMIN.email === email) {
+    return ADMIN;
+  }
+  return null;
+};
+
+const dbAdminAuth = async (email, password) => {
+  const user = await User.findOne({ email: email });
+  if (user) {
+    const pwdComparison = user.comparePassword(password);
+    if (pwdComparison) {
+      return {
+        email: email,
+        password: password
+      };
+    }
+  }
+  return null;
+};
+
+const broAuth = async (email, password, authType) => {
+  switch (authType) {
+    case "static":
+      return await staticAdminAuth(email, password);
+    case "database":
+      return await dbAdminAuth(email, password);
+    default:
+      break;
+  }
 };
 
 const isProduction = config.node_env === "production";
@@ -47,10 +93,7 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
   adminBro,
   {
     authenticate: async (email, password) => {
-      if (ADMIN.password === password && ADMIN.email === email) {
-        return ADMIN;
-      }
-      return null;
+      return await broAuth(email, password, "static");
     },
     cookieName: "adminbro",
     cookiePassword: config.cookie_secret
@@ -89,7 +132,7 @@ if (!isProduction) {
 }
 
 // Register general limiter
-app.use("/api/", limiter.general);
+app.use("/api/", generalLimiter);
 // Register routes here
 app.use("/api", mainRouter);
 app.get("/", (req, res, next) => {
