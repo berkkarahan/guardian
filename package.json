@@ -43,6 +43,7 @@
     "errorhandler": "^1.5.1",
     "express": "^4.17.1",
     "express-formidable": "^1.2.0",
+    "express-rate-limit": "^5.1.1",
     "express-session": "^1.17.0",
     "express-winston": "^4.0.2",
     "helmet": "^3.21.3",

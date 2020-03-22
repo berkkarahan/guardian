@@ -16,6 +16,7 @@ import passportSettings from "./config/passport";
 import config from "./envvars";
 import mainRouter from "./routes/main";
 import tryCatch from "./utils/catcher";
+import limiter from "./routes/limiter";
 
 //Setup adminbro
 const adminBro = new AdminBro(AdminBroOptions);
@@ -87,6 +88,8 @@ if (!isProduction) {
   app.use(errorhandler());
 }
 
+// Register general limiter
+app.use("/api/", limiter.general);
 // Register routes here
 app.use("/api", mainRouter);
 app.get("/", (req, res, next) => {
