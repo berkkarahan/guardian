@@ -12,7 +12,9 @@ const config = {
   mongo_dev: process.env.MONGODB_URI,
   fe_url: process.env.FE_URL,
   admin_email: process.env.ADMIN_EMAIL,
-  admin_pwd: process.env.ADMIN_PWD
+  admin_pwd: process.env.ADMIN_PWD,
+  sender_email: process.env.SENDER_EMAIL,
+  sender_pwd: process.env.SENDER_PWD
 };
 
 export default config;
