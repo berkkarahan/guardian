@@ -62,17 +62,16 @@ const isAuthenticated = async (req, res, next) => {
     return next();
   }
 
-  return res.status(401).json({
+  res.status(401).json({
     error: "User not authenticated."
   });
 };
 
 const isAuthenticatedandVerified = async (req, res, next) => {
-  await isAuthenticated(req, res, next);
-  if (req.user.verified) {
+  if (req.user && req.user.verified) {
     return next();
   }
-  return res.status(403).json({
+  res.status(403).json({
     error: "User not verified yet."
   });
 };
