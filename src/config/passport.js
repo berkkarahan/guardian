@@ -63,7 +63,17 @@ const isAuthenticated = async (req, res, next) => {
   }
 
   return res.status(401).json({
-    error: "User not authenticated"
+    error: "User not authenticated."
+  });
+};
+
+const isAuthenticatedandVerified = async (req, res, next) => {
+  await isAuthenticated(req, res, next);
+  if (req.user.verified) {
+    return next();
+  }
+  return res.status(403).json({
+    error: "User not verified yet."
   });
 };
 
@@ -72,5 +82,5 @@ export default {
   customLocalStrategy: customLocalStrategy,
   localSerializeUser: localSerializeUser,
   localDeserializer: localDeserializeUser,
-  isAuthenticated: isAuthenticated
+  utils: { auth: isAuthenticated, verified: isAuthenticatedandVerified }
 };

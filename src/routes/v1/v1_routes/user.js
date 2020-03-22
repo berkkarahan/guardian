@@ -5,19 +5,20 @@ import passportConfig from "../../../config/passport";
 const userRouter = express.Router();
 
 // Routes with session authentication
-userRouter.post(
-  "/details",
-  passportConfig.isAuthenticated,
-  usersController.get
+userRouter.get(
+  "/profile",
+  passportConfig.utils.verified,
+  usersController.profile
 );
+userRouter.post("/details", passportConfig.utils.verified, usersController.get);
 userRouter.post(
   "/update",
-  passportConfig.isAuthenticated,
+  passportConfig.utils.verified,
   usersController.update
 );
 userRouter.post(
   "/deactivate",
-  passportConfig.isAuthenticated,
+  passportConfig.utils.verified,
   usersController.deactivate
 );
 

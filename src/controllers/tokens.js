@@ -10,14 +10,15 @@ const validateVerification = tryCatch(async (req, res, next) => {
   const token = await Token.findOne({ token_uuid: tokenUUID });
 
   if (!token) {
-    res.status(403).send();
+    await res.status(403).json({ message: "Token not found" });
   }
 
   const verificationResult = await token.verifyUser();
   if (!verificationResult) {
-    res.status(403).send();
+    await res.status(403).json({ message: "Verification failed." });
   }
-  res.status(201).send();
+  await token.remove();
+  await res.status(201).json({ message: "Verification successful." });
 });
 
 // POST request, requires local authorization with passport

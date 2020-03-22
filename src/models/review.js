@@ -31,7 +31,9 @@ reviewSchema.pre("save", async function(next) {
   const travelslot = await Travelslot.findById(this.travelslot).populate(
     "company"
   );
-  this.title = `Review for travelslot: ${travelslot.title} for company: ${travelslot.company.title}`;
+  if (travelslot && travelslot.company) {
+    this.title = `Review for travelslot: ${travelslot.title} for company: ${travelslot.company.title}`;
+  }
   next();
 });
 
@@ -47,13 +49,13 @@ reviewSchema.pre("save", async function(next) {
     "comfort",
     "vehicle"
   ];
-  let sumRating;
-  let count;
+  let sumRating = 0;
+  let count = 0;
   let average;
   subDocs.forEach(sub => {
     if (currentReview[sub]) {
       const subdoc = currentReview[sub];
-      if (subdoc.review) {
+      if (subdoc.rating) {
         sumRating += currentReview[sub].rating;
         count += 1;
       }
