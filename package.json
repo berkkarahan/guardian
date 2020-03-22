@@ -45,7 +45,6 @@
     "express-formidable": "^1.2.0",
     "express-session": "^1.17.0",
     "express-winston": "^4.0.2",
-    "flat": "^5.0.0",
     "helmet": "^3.21.3",
     "ip6addr": "^0.2.3",
     "jsonwebtoken": "^8.5.1",
@@ -61,8 +60,7 @@
     "passport-local": "^1.0.0",
     "pm2": "^4.2.3",
     "uuidv4": "^6.0.6",
-    "validator": "^12.2.0",
-    "winston": "^3.2.1"
+    "validator": "^12.2.0"
   },
   "devDependencies": {
     "@babel/register": "^7.8.6",
