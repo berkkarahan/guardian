@@ -18,7 +18,7 @@ const validateVerification = tryCatch(async (req, res, next) => {
     await res.status(403).json({ message: "Verification failed." });
   }
   await token.remove();
-  await res.status(201).json({ message: "Verification successful." });
+  res.status(201).json({ message: "Verification successful." });
 });
 
 // POST request, requires local authorization with passport
@@ -26,7 +26,7 @@ const createVerification = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
   const token = new Token();
   await token.generateVerificationToken(user);
-  await res.status(201).json(token);
+  res.status(201).json(token);
 });
 
 // served over a POST request.

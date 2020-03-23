@@ -30,12 +30,13 @@ const updateRestrictedFields = concat(createRestrictedFields, [
 
 const getUserDetails = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
-  return res.status(200).json(user.toJSON());
+  const userJson = await user.toJSON();
+  res.status(200).json(userJson);
 });
 
 const getUserProfile = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
-  await res.status(200).json({
+  res.status(200).json({
     data: {
       userName: user.userName,
       email: user.email,
@@ -56,14 +57,14 @@ const getUser = tryCatch(async (req, res, next) => {
     res.status(403).json({ message: "User not found." });
   }
   const userJson = await loadedUser.userToJSON();
-  await res.status(200).json({ user: userJson });
+  res.status(200).json({ user: userJson });
 });
 
 const loginUserv2 = tryCatch(async (req, res, next) => {
   // eslint-disable-next-line array-callback-return
   Object.keys(req.body.user).map(key => {
     if (key !== "email" && key !== "password") {
-      return res.status(422).json({
+      res.status(422).json({
         errors: {
           message: "email and password are required"
         }
@@ -72,18 +73,18 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
   });
   await passport.authenticate("local", async function(err, user, info) {
     if (err) {
-      return await res.status(403).json(info);
+      res.status(403).json(info);
     }
     if (user) {
       const userJson = await user.userToJSON();
       req.login(user, loginError => {
         if (loginError) {
-          throw new Error(loginError);
+          res.status(403).json(loginError);
         }
       });
-      return await res.status(200).json({ user: userJson });
+      res.status(200).json({ user: userJson });
     }
-    return await res.status(403).json(info);
+    res.status(403).json(info);
   })(req, res, next);
 });
 
@@ -119,8 +120,8 @@ const createUser = tryCatch(async (req, res, next) => {
   const baseUrl = `${req.protocol}://${req.get("host")}`;
   const verifUrl = `${baseUrl}/api/auth/verification?uuid=${verifToken.token_uuid}`;
   await mailer.verification.test(verifUrl);
-
-  return await res.status(201).json(user.userToJSON());
+  const userJson = await user.userToJSON();
+  res.status(201).json(userJson);
 });
 
 const updateUser = tryCatch(async (req, res, next) => {
@@ -131,7 +132,8 @@ const updateUser = tryCatch(async (req, res, next) => {
     { _id: req.user._id },
     req.body.user
   );
-  return await res.status(200).json(user.userToJSON());
+  const userJson = user.userToJSON();
+  res.status(200).json(userJson);
 });
 
 const deactivateUser = tryCatch(async (req, res, next) => {
@@ -144,7 +146,7 @@ const deactivateUser = tryCatch(async (req, res, next) => {
     );
   }
   await user.save();
-  return res.status(200);
+  res.status(200).json();
 });
 
 export default {

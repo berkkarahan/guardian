@@ -31,7 +31,7 @@ const customReadMany = async (Collection, req, res, next) => {
     pagination
   );
   const records = await queryObject.exec();
-  await res.status(200).json(records);
+  res.status(200).json(records);
 };
 
 const companyReadMany = tryCatch(async (req, res, next) => {

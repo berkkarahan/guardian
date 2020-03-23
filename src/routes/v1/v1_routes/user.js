@@ -10,7 +10,7 @@ userRouter.get(
   passportConfig.utils.verified,
   usersController.profile
 );
-userRouter.post("/details", passportConfig.utils.verified, usersController.get);
+userRouter.get("/details", passportConfig.utils.verified, usersController.get);
 userRouter.post(
   "/update",
   passportConfig.utils.verified,

@@ -58,22 +58,26 @@ const localDeserializeUser = async function(id, done) {
 };
 
 const isAuthenticated = async (req, res, next) => {
-  if (req.user) {
-    return next();
+  if (!req.user) {
+    res.status(401).json({
+      error: "User not authenticated."
+    });
   }
-
-  res.status(401).json({
-    error: "User not authenticated."
-  });
+  return next();
 };
 
 const isAuthenticatedandVerified = async (req, res, next) => {
-  if (req.user && req.user.verified) {
-    return next();
+  if (!req.user) {
+    res.status(401).json({
+      error: "User not authenticated."
+    });
   }
-  res.status(403).json({
-    error: "User not verified yet."
-  });
+  if (!req.user.verified) {
+    res.status(403).json({
+      error: "User not verified yet."
+    });
+  }
+  return next();
 };
 
 export default {
