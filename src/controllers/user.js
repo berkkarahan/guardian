@@ -31,12 +31,12 @@ const updateRestrictedFields = concat(createRestrictedFields, [
 const getUserDetails = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
   const userJson = await user.toJSON();
-  res.status(200).json(userJson);
+  await res.status(200).json(userJson);
 });
 
 const getUserProfile = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
-  res.status(200).json({
+  await res.status(200).json({
     data: {
       userName: user.userName,
       email: user.email,
@@ -57,7 +57,7 @@ const getUser = tryCatch(async (req, res, next) => {
     res.status(403).json({ message: "User not found." });
   }
   const userJson = await loadedUser.userToJSON();
-  res.status(200).json({ user: userJson });
+  await res.status(200).json({ user: userJson });
 });
 
 const loginUserv2 = tryCatch(async (req, res, next) => {
@@ -73,26 +73,32 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
   });
   await passport.authenticate("local", async function(err, user, info) {
     if (err) {
-      res.status(403).json(info);
+      await res.status(403).json(info);
     }
     if (user) {
       const userJson = await user.userToJSON();
-      req.login(user, loginError => {
+      req.login(user, async loginError => {
         if (loginError) {
-          res.status(403).json(loginError);
+          await res.status(403).json(loginError);
         }
       });
-      res.status(200).json({ user: userJson });
+      await res.status(200).json({ user: userJson });
     }
-    res.status(403).json(info);
+    await res.status(403).json(info);
   })(req, res, next);
 });
 
 const loginHandler = async (req, res, next) => {
-  if (req.user) {
-    res.status(200).json(req.user);
+  const { user } = req;
+  if (user) {
+    req.logIn(user, function(err) {
+      if (err) {
+        return next(err);
+      }
+      return res.status(200).send(user);
+    });
   } else {
-    res.status(403);
+    await res.status(403);
   }
 };
 
@@ -100,7 +106,7 @@ const loginHandler = async (req, res, next) => {
 const logoutUserv2 = tryCatch(async (req, res, next) => {
   await req.logout();
   if (!isProduction) {
-    res.status(200).send();
+    await res.status(200).json();
   } else {
     res.redirect("/");
   }
@@ -129,7 +135,7 @@ const createUser = tryCatch(async (req, res, next) => {
   const verifUrl = `${baseUrl}/api/auth/verification?uuid=${verifToken.token_uuid}`;
   await mailer.verification.test(verifUrl);
   const userJson = await user.userToJSON();
-  res.status(201).json(userJson);
+  await res.status(201).json(userJson);
 });
 
 const updateUser = tryCatch(async (req, res, next) => {
@@ -141,7 +147,7 @@ const updateUser = tryCatch(async (req, res, next) => {
     req.body.user
   );
   const userJson = user.userToJSON();
-  res.status(200).json(userJson);
+  await res.status(200).json(userJson);
 });
 
 const deactivateUser = tryCatch(async (req, res, next) => {
@@ -154,7 +160,7 @@ const deactivateUser = tryCatch(async (req, res, next) => {
     );
   }
   await user.save();
-  res.status(200).json();
+  await res.status(200).json();
 });
 
 export default {

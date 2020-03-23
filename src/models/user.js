@@ -105,6 +105,10 @@ userSchema.methods.userToJSON = async function() {
   };
 };
 
+userSchema.methods.isVerified = async function() {
+  return Boolean(this.verified);
+};
+
 userSchema.methods.comparePassword = async function(password) {
   return await bcrypt.compare(password, this.password);
 };

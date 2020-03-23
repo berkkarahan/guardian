@@ -1,6 +1,5 @@
 import { Strategy } from "passport-local";
 import passportCustom from "passport-custom";
-import bcrypt from "bcrypt";
 import User from "../models/user";
 
 const LocalStrategy = Strategy;
@@ -59,7 +58,7 @@ const localDeserializeUser = async function(id, done) {
 
 const isAuthenticated = async (req, res, next) => {
   if (!req.user) {
-    res.status(401).json({
+    await res.status(403).json({
       error: "User not authenticated."
     });
   }
@@ -68,16 +67,17 @@ const isAuthenticated = async (req, res, next) => {
 
 const isAuthenticatedandVerified = async (req, res, next) => {
   if (!req.user) {
-    res.status(401).json({
+    await res.status(403).json({
       error: "User not authenticated."
     });
   }
-  if (!req.user.verified) {
-    res.status(403).json({
-      error: "User not verified yet."
+  const verificationStatus = await req.user.isVerified();
+  if (!verificationStatus) {
+    await res.status(403).json({
+      error: "User not verified."
     });
   }
-  return next();
+  next();
 };
 
 export default {

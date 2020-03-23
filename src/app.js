@@ -115,14 +115,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(cookieparser(config.cookie_secret));
-// app.use(
-//   session({
-//     secret: config.cookie_secret,
-//     resave: false,
-//     saveUninitialized: false,
-//     store: sessionMongoStore
-//   })
-// );
+app.use(
+  session({
+    secret: config.cookie_secret,
+    resave: false,
+    saveUninitialized: false,
+    store: sessionMongoStore
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
