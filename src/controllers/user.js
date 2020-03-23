@@ -90,16 +90,15 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
 
 const loginHandler = async (req, res, next) => {
   const { user } = req;
-  if (user) {
-    req.logIn(user, function(err) {
-      if (err) {
-        return next(err);
-      }
-      return res.status(200).send(user);
-    });
-  } else {
+  if (!user) {
     await res.status(403);
   }
+  req.logIn(user, async function(err) {
+    if (err) {
+      return next(err);
+    }
+    await res.status(200).json(user);
+  });
 };
 
 // Different from previous, this is served over GET request.
