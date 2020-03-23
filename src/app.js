@@ -103,7 +103,12 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
     secret: config.cookie_secret,
     resave: false,
     saveUninitialized: false,
-    store: sessionMongoStore
+    store: sessionMongoStore,
+    cookie: {
+      httpOnly: false,
+      sameSite: "none",
+      secure: false
+    }
   }
 );
 
@@ -120,7 +125,12 @@ app.use(
     secret: config.cookie_secret,
     resave: false,
     saveUninitialized: false,
-    store: sessionMongoStore
+    store: sessionMongoStore,
+    cookie: {
+      httpOnly: false,
+      sameSite: "none",
+      secure: false
+    }
   })
 );
 
