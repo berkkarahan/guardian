@@ -88,6 +88,14 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
   })(req, res, next);
 });
 
+const loginHandler = async (req, res, next) => {
+  if (req.user) {
+    res.status(200).json(req.user);
+  } else {
+    res.status(403);
+  }
+};
+
 // Different from previous, this is served over GET request.
 const logoutUserv2 = tryCatch(async (req, res, next) => {
   await req.logout();
@@ -157,5 +165,6 @@ export default {
   update: updateUser,
   deactivate: deactivateUser,
   login: loginUserv2,
+  loginHandler: loginHandler,
   logout: logoutUserv2
 };
