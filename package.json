@@ -1,6 +1,7 @@
 {
   "name": "guardian",
   "version": "1.0.0",
+  "engines": {"12.16.x"},
   "description": "guardian, b/e for ratenride",
   "main": "src/server.js",
   "scripts": {
