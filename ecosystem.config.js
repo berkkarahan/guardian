@@ -2,10 +2,10 @@ module.exports = {
   apps: [
     {
       name: "API",
-      script: "./dist/server.js",
+      script: "node ./dist/server.js",
 
       // Options reference: https://pm2.keymetrics.io/docs/usage/application-declaration/
-      args: "one two",
+      // args: "one two",
       instances: 1,
       autorestart: true,
       watch: false,

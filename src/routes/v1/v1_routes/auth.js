@@ -1,4 +1,5 @@
 import express from "express";
+import passport from "passport";
 import passportConfig from "../../../config/passport";
 import usersController from "../../../controllers/user";
 import tokensController from "../../../controllers/tokens";
@@ -6,7 +7,11 @@ import tokensController from "../../../controllers/tokens";
 const authRouter = express.Router();
 
 authRouter.post("/preload", usersController.preload);
-authRouter.post("/login", usersController.login);
+authRouter.post(
+  "/login",
+  passport.authenticate("local"),
+  usersController.loginHandler
+);
 authRouter.get("/logout", usersController.logout);
 authRouter.post("/signup", usersController.create);
 

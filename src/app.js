@@ -76,8 +76,15 @@ const isProduction = config.node_env === "production";
 
 // Mongo-db store for express session
 const MongoStore = mongostore(session);
+const broMongoSession = new MongoStore({
+  mongooseConnection: mongoose.connection,
+  collection: "broSessions"
+});
 const sessionMongoStore = new MongoStore({
-  mongooseConnection: mongoose.connection
+  mongooseConnection: mongoose.connection,
+  ttl: 1 * 60 * 60, // 1 hour
+  autoRemove: "native",
+  collection: "appSessions"
 });
 
 // Passport serialization settings for session
@@ -99,7 +106,18 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
     cookiePassword: config.cookie_secret
   },
   predefinedBroRouter,
-  { resave: false, saveUninitialized: false, store: sessionMongoStore }
+  {
+    name: "bro.session.id",
+    secret: config.cookie_secret,
+    resave: false,
+    saveUninitialized: false,
+    store: broMongoSession,
+    cookie: {
+      httpOnly: false,
+      sameSite: "none",
+      secure: false
+    }
+  }
 );
 
 app.use(adminBro.options.rootPath, adminRouter);
@@ -112,10 +130,16 @@ app.use(bodyparser.urlencoded({ extended: true }));
 app.use(cookieparser(config.cookie_secret));
 app.use(
   session({
+    name: "app.session.id",
     secret: config.cookie_secret,
     resave: false,
     saveUninitialized: false,
-    store: sessionMongoStore
+    store: sessionMongoStore,
+    cookie: {
+      httpOnly: false,
+      sameSite: "none",
+      secure: false
+    }
   })
 );
 

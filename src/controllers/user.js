@@ -30,7 +30,8 @@ const updateRestrictedFields = concat(createRestrictedFields, [
 
 const getUserDetails = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
-  return res.status(200).json(user.toJSON());
+  const userJson = await user.toJSON();
+  await res.status(200).json(userJson);
 });
 
 const getUserProfile = tryCatch(async (req, res, next) => {
@@ -63,7 +64,7 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
   // eslint-disable-next-line array-callback-return
   Object.keys(req.body.user).map(key => {
     if (key !== "email" && key !== "password") {
-      return res.status(422).json({
+      res.status(422).json({
         errors: {
           message: "email and password are required"
         }
@@ -72,26 +73,39 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
   });
   await passport.authenticate("local", async function(err, user, info) {
     if (err) {
-      return await res.status(403).json(info);
+      await res.status(403).json(info);
     }
     if (user) {
       const userJson = await user.userToJSON();
-      req.login(user, loginError => {
+      req.login(user, async loginError => {
         if (loginError) {
-          throw new Error(loginError);
+          await res.status(403).json(loginError);
         }
       });
-      return await res.status(200).json({ user: userJson });
+      await res.status(200).json({ user: userJson });
     }
-    return await res.status(403).json(info);
+    await res.status(403).json(info);
   })(req, res, next);
 });
+
+const loginHandler = async (req, res, next) => {
+  const { user } = req;
+  if (!user) {
+    await res.status(403);
+  }
+  req.logIn(user, async function(err) {
+    if (err) {
+      return next(err);
+    }
+    await res.status(200).json(user);
+  });
+};
 
 // Different from previous, this is served over GET request.
 const logoutUserv2 = tryCatch(async (req, res, next) => {
   await req.logout();
   if (!isProduction) {
-    res.status(200).send();
+    await res.status(200).json();
   } else {
     res.redirect("/");
   }
@@ -119,8 +133,8 @@ const createUser = tryCatch(async (req, res, next) => {
   const baseUrl = `${req.protocol}://${req.get("host")}`;
   const verifUrl = `${baseUrl}/api/auth/verification?uuid=${verifToken.token_uuid}`;
   await mailer.verification.test(verifUrl);
-
-  return await res.status(201).json(user.userToJSON());
+  const userJson = await user.userToJSON();
+  await res.status(201).json(userJson);
 });
 
 const updateUser = tryCatch(async (req, res, next) => {
@@ -131,7 +145,8 @@ const updateUser = tryCatch(async (req, res, next) => {
     { _id: req.user._id },
     req.body.user
   );
-  return await res.status(200).json(user.userToJSON());
+  const userJson = user.userToJSON();
+  await res.status(200).json(userJson);
 });
 
 const deactivateUser = tryCatch(async (req, res, next) => {
@@ -144,7 +159,7 @@ const deactivateUser = tryCatch(async (req, res, next) => {
     );
   }
   await user.save();
-  return res.status(200);
+  await res.status(200).json();
 });
 
 export default {
@@ -155,5 +170,6 @@ export default {
   update: updateUser,
   deactivate: deactivateUser,
   login: loginUserv2,
+  loginHandler: loginHandler,
   logout: logoutUserv2
 };
