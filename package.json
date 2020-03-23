@@ -7,7 +7,7 @@
   "description": "guardian, b/e for ratenride",
   "main": "src/server.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=test nodemon --exec babel-node src/server.js",
+    "dev": "npm run build && cross-env NODE_ENV=test nodemon --exec node dist/server.js",
     "build": "babel src --out-dir dist",
     "serve": "node ./dist/server.js",
     "prestart": "npm run build",
