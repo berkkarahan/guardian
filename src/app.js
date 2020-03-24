@@ -111,14 +111,15 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
     secret: config.cookie_secret,
     resave: false,
     saveUninitialized: false,
-    store: broMongoSession,
-    cookie: {
-      httpOnly: false,
-      sameSite: "none",
-      secure: false
-    }
+    store: broMongoSession
   }
 );
+
+// cookie: {
+//   httpOnly: false,
+//   sameSite: "none",
+//   secure: false
+// }
 
 app.use(adminBro.options.rootPath, adminRouter);
 app.use(helmet());
@@ -134,14 +135,15 @@ app.use(
     secret: config.cookie_secret,
     resave: false,
     saveUninitialized: false,
-    store: sessionMongoStore,
-    cookie: {
-      httpOnly: false,
-      sameSite: "none",
-      secure: false
-    }
+    store: sessionMongoStore
   })
 );
+
+// cookie: {
+//   httpOnly: false,
+//   sameSite: "none",
+//   secure: false
+// }
 
 app.use(passport.initialize());
 app.use(passport.session());
