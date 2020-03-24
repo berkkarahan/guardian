@@ -93,11 +93,11 @@ const loginHandler = async (req, res, next) => {
   if (!user) {
     await res.status(403);
   }
-  req.logIn(user, async function(err) {
+  req.logIn(user, function(err) {
     if (err) {
       return next(err);
     }
-    await res.status(200).json(user);
+    return res.status(200).json(user);
   });
 };
 
