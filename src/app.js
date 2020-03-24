@@ -111,8 +111,7 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
     secret: config.cookie_secret,
     resave: false,
     saveUninitialized: false,
-    store: broMongoSession,
-    cookie: { domain: "herokuapp.com" }
+    store: broMongoSession
   }
 );
 
@@ -143,8 +142,7 @@ app.use(
     secret: config.cookie_secret,
     resave: false,
     saveUninitialized: false,
-    store: sessionMongoStore,
-    cookie: { domain: "herokuapp.com" }
+    store: sessionMongoStore
   })
 );
 
