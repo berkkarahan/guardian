@@ -94,6 +94,15 @@ passport.deserializeUser(passportSettings.localDeserializer);
 
 const app = express();
 
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
 // Admin bro settings for the admin page
 const predefinedBroRouter = express.Router();
 const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
