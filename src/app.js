@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import cors from "cors";
+import path from "path";
 import helmet from "helmet";
 import passport from "passport";
 import bodyparser from "body-parser";
@@ -93,6 +94,19 @@ passport.serializeUser(passportSettings.localSerializeUser);
 passport.deserializeUser(passportSettings.localDeserializer);
 
 const app = express();
+
+const htmlDir = path.join(__dirname, "../ride_n_rate/src/pages/");
+const cssDir = path.join(__dirname, "../ride_n_rate/src/css/");
+const fontsDir = path.join(__dirname, "../ride_n_rate/src/fonts/");
+const imagesDir = path.join(__dirname, "../ride_n_rate/src/images/");
+const jsDir = path.join(__dirname, "../ride_n_rate/src/js/");
+const bundleDir = path.join(__dirname, "../ride_n_rate/bundle/");
+app.use("/web", express.static(htmlDir));
+app.use("/css", express.static(cssDir));
+app.use("/fonts", express.static(fontsDir));
+app.use("/images", express.static(imagesDir));
+app.use("/js", express.static(jsDir));
+app.use("/bundle", express.static(bundleDir));
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
