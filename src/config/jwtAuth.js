@@ -1,4 +1,5 @@
 import jwt from "express-jwt";
+import connect from "connect";
 import config from "../envvars";
 
 function getTokenFromHeader(req) {
@@ -14,18 +15,41 @@ function getTokenFromHeader(req) {
   return null;
 }
 
-const jwtAuth = {
-  required: jwt({
-    secret: config.jwt_secret,
-    userProperty: "user",
-    getToken: getTokenFromHeader
-  }),
-  optional: jwt({
-    secret: config.jwt_secret,
-    userProperty: "user",
-    credentialsRequired: false,
-    getToken: getTokenFromHeader
-  })
+const required = jwt({
+  secret: config.jwt_secret,
+  userProperty: "user",
+  getToken: getTokenFromHeader
+});
+
+const optional = jwt({
+  secret: config.jwt_secret,
+  userProperty: "user",
+  credentialsRequired: false,
+  getToken: getTokenFromHeader
+});
+
+const verified = async (req, res, next) => {
+  const verificationStatus = await req.user.isVerified();
+  if (!verificationStatus) {
+    await res.status(403).json({
+      error: "User not verified."
+    });
+  }
+  next();
 };
 
-module.exports = jwtAuth;
+const authenticatedAndVerified = (function() {
+  const chain = connect();
+  [required, verified].forEach(function(middleware) {
+    chain.use(middleware);
+  });
+  return chain;
+})();
+
+const jwtAuth = {
+  authRequired: required,
+  authOptional: optional,
+  authVerified: authenticatedAndVerified
+};
+
+export default jwtAuth;

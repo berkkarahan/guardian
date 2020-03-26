@@ -115,7 +115,7 @@ userSchema.methods.comparePassword = async function(password) {
 
 userSchema.methods.generateJWT = async function() {
   const payload = {
-    id: this._id,
+    _id: this._id,
     uuid: this.uuid,
     username: this.userName,
     email: this.email,

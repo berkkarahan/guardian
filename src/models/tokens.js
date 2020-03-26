@@ -13,7 +13,7 @@ const tokenSchema = new mongoose.Schema(
     },
     token_type: {
       type: String,
-      enum: ["verification", "pwdreset"]
+      enum: ["verification", "pwdreset", "blacklist"]
     },
     token_uuid: {
       type: String,
