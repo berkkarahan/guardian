@@ -119,7 +119,8 @@ userSchema.methods.generateJWT = async function() {
     uuid: this.uuid,
     username: this.userName,
     email: this.email,
-    is_admin: this.is_admin
+    is_admin: this.is_admin,
+    is_verified: await this.isVerified()
   };
   const options = {
     expiresIn: config.jwt_expiresin,
