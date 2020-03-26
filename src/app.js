@@ -94,6 +94,15 @@ passport.deserializeUser(passportSettings.localDeserializer);
 
 const app = express();
 
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
 // Admin bro settings for the admin page
 const predefinedBroRouter = express.Router();
 const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
@@ -112,17 +121,26 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
     resave: false,
     saveUninitialized: false,
     store: broMongoSession,
-    cookie: {
-      httpOnly: false,
-      sameSite: "none",
-      secure: false
-    }
+    cookie: { httpOnly: false }
   }
 );
 
+// cookie: {
+//   httpOnly: false,
+//   sameSite: "none",
+//   secure: false
+// }
+
 app.use(adminBro.options.rootPath, adminRouter);
 app.use(helmet());
-app.use(cors({ credentials: true, origin: true }));
+app.use(
+  cors({
+    origin: function(origin, callback) {
+      callback(null, origin);
+    },
+    credentials: true
+  })
+);
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -135,13 +153,15 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: sessionMongoStore,
-    cookie: {
-      httpOnly: false,
-      sameSite: "none",
-      secure: false
-    }
+    cookie: { httpOnly: false }
   })
 );
+
+// cookie: {
+//   httpOnly: false,
+//   sameSite: "none",
+//   secure: false
+// }
 
 app.use(passport.initialize());
 app.use(passport.session());

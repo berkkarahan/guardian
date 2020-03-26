@@ -93,22 +93,18 @@ const loginHandler = async (req, res, next) => {
   if (!user) {
     await res.status(403);
   }
-  req.logIn(user, async function(err) {
+  req.logIn(user, function(err) {
     if (err) {
       return next(err);
     }
-    await res.status(200).json(user);
+    return res.status(200).json(user);
   });
 };
 
 // Different from previous, this is served over GET request.
 const logoutUserv2 = tryCatch(async (req, res, next) => {
   await req.logout();
-  if (!isProduction) {
-    await res.status(200).json();
-  } else {
-    res.redirect("/");
-  }
+  await res.status(200).json();
 });
 
 const createUser = tryCatch(async (req, res, next) => {
