@@ -1,0 +1,4 @@
+[submodule "ride_n_rate"]
+	path = ride_n_rate
+	url = https://github.com/berkkarahan/ride_n_rate
+	branch = monorepo
