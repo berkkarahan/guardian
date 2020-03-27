@@ -92,7 +92,14 @@ passport.use("local", passportSettings.customLocalStrategy);
 passport.serializeUser(passportSettings.localSerializeUser);
 passport.deserializeUser(passportSettings.localDeserializer);
 
+const corsConfig = {
+  origin: true,
+  credentials: true
+};
+
 const app = express();
+app.use(cors(corsConfig));
+app.options("*", cors(corsConfig));
 
 // Admin bro settings for the admin page
 const predefinedBroRouter = express.Router();
@@ -124,14 +131,6 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
 
 app.use(adminBro.options.rootPath, adminRouter);
 app.use(helmet());
-app.use(
-  cors({
-    origin: function(origin, callback) {
-      callback(null, origin);
-    },
-    credentials: true
-  })
-);
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
