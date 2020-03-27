@@ -116,12 +116,6 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
   }
 );
 
-// cookie: {
-//   httpOnly: false,
-//   sameSite: "none",
-//   secure: false
-// }
-
 const corsConfig = {
   origin: true,
   credentials: true
@@ -142,7 +136,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: sessionMongoStore,
-    cookie: { httpOnly: false, sameSite: "none", secure: true }
+    cookie: { httpOnly: false }
   })
 );
 
