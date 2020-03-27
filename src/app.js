@@ -112,7 +112,7 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
     resave: false,
     saveUninitialized: false,
     store: broMongoSession,
-    cookie: { sameSite: "none", secure: true }
+    cookie: { httpOnly: false }
   }
 );
 
@@ -142,7 +142,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: sessionMongoStore,
-    cookie: { sameSite: "none", secure: true }
+    cookie: { httpOnly: false, sameSite: "none", secure: true }
   })
 );
 
