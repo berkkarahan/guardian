@@ -101,10 +101,29 @@ const loginHandler = async (req, res, next) => {
   });
 };
 
+const loginHandlerJwt = tryCatch(async (req, res, next) => {
+  const { user } = req;
+  if (!user) {
+    await res.status(403);
+  }
+  const jwt = await user.generateJWT();
+  res.status(200).json({ jwt: jwt });
+});
+
 // Different from previous, this is served over GET request.
 const logoutUserv2 = tryCatch(async (req, res, next) => {
   await req.logout();
   await res.status(200).json();
+});
+
+const logoutUserJwt = tryCatch(async (req, res, next) => {
+  const token = req.body.jwt;
+  const tokenObj = new Token({ jwt_token: token });
+  if (await tokenObj.validateToken()) {
+    tokenObj.token_type = "blacklist";
+    await tokenObj.save();
+  }
+  res.status(200).json();
 });
 
 const createUser = tryCatch(async (req, res, next) => {
@@ -166,6 +185,6 @@ export default {
   update: updateUser,
   deactivate: deactivateUser,
   login: loginUserv2,
-  loginHandler: loginHandler,
-  logout: logoutUserv2
+  loginHandler: { cookie: loginHandler, jwt: loginHandlerJwt },
+  logout: { cookie: logoutUserv2, jwt: logoutUserJwt }
 };

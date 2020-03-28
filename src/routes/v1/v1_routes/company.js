@@ -3,7 +3,7 @@ import { initBase } from "../../../controllers/crud";
 import company from "../../../controllers/company";
 import db from "../../../db";
 import permissions from "../../../utils/permissions";
-import passportConfig from "../../../config/passport";
+import jwtAuth from "../../../config/jwtAuth";
 
 const companyRouter = express.Router();
 const companyCRUD = initBase(db.models.company);
@@ -12,26 +12,26 @@ const companyCRUD = initBase(db.models.company);
 // admin only routes
 companyRouter.post(
   "/create",
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   permissions.isadmin,
   company.create.company
 );
 companyRouter.post(
   "/update",
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   permissions.isadmin,
   company.update.company
 );
 companyRouter.post(
   "/remove",
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   permissions.isadmin,
   companyCRUD.controllers.delete
 );
 
 companyRouter.post(
   "/verify",
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   permissions.isadmin,
   company.verify.company
 );
@@ -47,25 +47,25 @@ const travelslotsCRUD = initBase(db.models.travelslots);
 // travelSlot creatin is not admin only but will still require verification.
 travelslotsRouter.post(
   "/create",
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   company.create.travelslot
 );
 travelslotsRouter.post(
   "/update",
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   permissions.isadmin,
   company.update.travelslot
 );
 travelslotsRouter.post(
   "/remove",
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   permissions.isadmin,
   travelslotsCRUD.controllers.delete
 );
 
 travelslotsRouter.post(
   "/verify",
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   permissions.isadmin,
   company.verify.travelslot
 );
