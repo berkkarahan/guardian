@@ -1,24 +1,16 @@
 import express from "express";
 import usersController from "../../../controllers/user";
-import passportConfig from "../../../config/passport";
+import jwtAuth from "../../../config/jwtAuth";
 
 const userRouter = express.Router();
 
 // Routes with session authentication
-userRouter.get(
-  "/profile",
-  passportConfig.utils.verified,
-  usersController.profile
-);
-userRouter.get("/details", passportConfig.utils.verified, usersController.get);
-userRouter.post(
-  "/update",
-  passportConfig.utils.verified,
-  usersController.update
-);
+userRouter.get("/profile", jwtAuth.authVerified, usersController.profile);
+userRouter.get("/details", jwtAuth.authVerified, usersController.get);
+userRouter.post("/update", jwtAuth.authVerified, usersController.update);
 userRouter.post(
   "/deactivate",
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   usersController.deactivate
 );
 

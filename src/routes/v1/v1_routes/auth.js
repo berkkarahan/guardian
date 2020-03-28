@@ -9,10 +9,10 @@ const authRouter = express.Router();
 authRouter.post("/preload", usersController.preload);
 authRouter.post(
   "/login",
-  passport.authenticate("local"),
-  usersController.loginHandler
+  passport.authenticate("local", { session: false }),
+  usersController.loginHandler.jwt
 );
-authRouter.get("/logout", usersController.logout);
+authRouter.get("/logout", usersController.logout.jwt);
 authRouter.post("/signup", usersController.create);
 
 // Route to create and send(not yet implemented) verification token

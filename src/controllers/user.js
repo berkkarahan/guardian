@@ -185,6 +185,6 @@ export default {
   update: updateUser,
   deactivate: deactivateUser,
   login: loginUserv2,
-  loginHandler: loginHandler,
-  logout: logoutUserv2
+  loginHandler: { cookie: loginHandler, jwt: loginHandlerJwt },
+  logout: { cookie: logoutUserv2, jwt: logoutUserJwt }
 };
