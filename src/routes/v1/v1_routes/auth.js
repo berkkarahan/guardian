@@ -1,8 +1,8 @@
 import express from "express";
 import passport from "passport";
-import passportConfig from "../../../config/passport";
 import usersController from "../../../controllers/user";
 import tokensController from "../../../controllers/tokens";
+import jwtAuth from "../../../config/jwtAuth";
 
 const authRouter = express.Router();
 
@@ -18,7 +18,7 @@ authRouter.post("/signup", usersController.create);
 // Route to create and send(not yet implemented) verification token
 authRouter.post(
   "/verification",
-  passportConfig.utils.auth,
+  jwtAuth.authRequired,
   tokensController.verification.create
 );
 
@@ -26,16 +26,13 @@ authRouter.post(
 authRouter.get("/verification", tokensController.verification.validate);
 
 // simple route to see if suthenticated
-authRouter.get("/session", async (req, res, next) => {
+const checkSession = async (req, res, next) => {
   if (req.user) {
     res.status(200).send();
   } else {
     res.status(403).send();
   }
-});
-
-authRouter.get("/u", passportConfig.utils.verified, async (req, res, next) => {
-  res.status(200).json({ message: "Verified user." });
-});
+};
+authRouter.get("/session", jwtAuth.authVerified, checkSession);
 
 export default authRouter;
