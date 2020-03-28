@@ -56,6 +56,18 @@ tokenSchema.methods.resetPassword = async function(password) {
   await User.findByIdAndUpdate(this.user._id, { password: password });
 };
 
+tokenSchema.methods.generateBlacklistToken = async function(
+  jwtToken,
+  userObject
+) {
+  const currentToken = this;
+  currentToken.jwt_token = jwtToken;
+  currentToken.token_type = "blacklist";
+  currentToken.token_uuid = uuid();
+  currentToken.user = userObject;
+  await currentToken.save();
+};
+
 tokenSchema.methods.generateVerificationToken = async function(userObject) {
   const jwtToken = await userObject.generateJWT();
   const currentToken = this;

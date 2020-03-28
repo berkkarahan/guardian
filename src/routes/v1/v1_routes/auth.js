@@ -13,7 +13,7 @@ authRouter.post(
   passport.authenticate("local", { session: false }),
   authController.loginHandler.jwt
 );
-authRouter.get("/logout", authController.logout.jwt);
+authRouter.get("/logout", jwtAuth.authVerified, authController.logout.jwt);
 authRouter.post("/signup", usersController.create);
 
 // Route to create and send(not yet implemented) verification token

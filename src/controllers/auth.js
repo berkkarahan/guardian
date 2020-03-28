@@ -65,12 +65,9 @@ const logoutUserJwt = tryCatch(async (req, res, next) => {
     token_type: "blacklist"
   });
   if (!tokenObj) {
-    const blacklistToken = new Token({
-      jwt_token: token,
-      token_type: "blacklist"
-    });
-    await blacklistToken.save();
-    return res.status(200).json(blacklistToken);
+    const blacklistToken = new Token();
+    await blacklistToken.generateBlacklistToken(token, req.user);
+    return res.status(200).send();
   }
   await res
     .status(403)
