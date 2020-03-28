@@ -19,6 +19,7 @@ import config from "./envvars";
 import mainRouter from "./routes/main";
 import tryCatch from "./utils/catcher";
 import db from "./db";
+import jwtAuth from "./config/jwtAuth";
 
 // User model
 const User = db.models.user;
@@ -158,6 +159,8 @@ if (!isProduction) {
   app.use(errorhandler());
 }
 
+// set token to req context
+app.use(jwtAuth.middleware);
 // Register general limiter
 app.use("/api/", generalLimiter);
 // Register routes here

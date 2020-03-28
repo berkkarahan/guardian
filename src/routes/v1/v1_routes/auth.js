@@ -1,6 +1,7 @@
 import express from "express";
 import passport from "passport";
 import usersController from "../../../controllers/user";
+import authController from "../../../controllers/auth";
 import tokensController from "../../../controllers/tokens";
 import jwtAuth from "../../../config/jwtAuth";
 
@@ -10,9 +11,9 @@ authRouter.post("/preload", usersController.preload);
 authRouter.post(
   "/login",
   passport.authenticate("local", { session: false }),
-  usersController.loginHandler.jwt
+  authController.loginHandler.jwt
 );
-authRouter.get("/logout", usersController.logout.jwt);
+authRouter.get("/logout", authController.logout.jwt);
 authRouter.post("/signup", usersController.create);
 
 // Route to create and send(not yet implemented) verification token

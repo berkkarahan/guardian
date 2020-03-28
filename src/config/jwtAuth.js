@@ -14,10 +14,16 @@ function getTokenFromHeader(req) {
       req.headers.authorization.split(" ")[0] === "Bearer")
   ) {
     const jwtToken = req.headers.authorization.split(" ")[1];
+    req.tokens = { jwt: jwtToken };
     return jwtToken;
   }
-
   return null;
+}
+
+async function setTokenToRequest(req, res, next) {
+  const token = getTokenFromHeader(req);
+  req.tokens = { jwt: token };
+  next();
 }
 
 const required = jwt({
@@ -78,13 +84,14 @@ const requiredChain = (function() {
 
 const optionalChain = (function() {
   const chain = connect();
-  [optional, attachUser].forEach(function(middleware) {
+  [optional, attachUserOptional].forEach(function(middleware) {
     chain.use(middleware);
   });
   return chain;
 })();
 
 const jwtAuth = {
+  middleware: setTokenToRequest,
   authRequired: requiredChain,
   authOptional: optionalChain,
   authVerified: authenticatedAndVerified
