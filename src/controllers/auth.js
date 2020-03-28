@@ -70,15 +70,15 @@ const logoutUserJwt = tryCatch(async (req, res, next) => {
       token_type: "blacklist"
     });
     await blacklistToken.save();
-    res.status(200).json(blacklistToken);
+    return res.status(200).json(blacklistToken);
   }
-  res
+  await res
     .status(403)
     .json({ error: "Token was already blacklisted.", token: tokenObj });
 });
 
 export default {
-  login: { loginUserv2 },
+  login: { cookie: loginUserv2 },
   loginHandler: { cookie: loginHandler, jwt: loginHandlerJwt },
   logout: { cookie: logoutUserv2, jwt: logoutUserJwt }
 };
