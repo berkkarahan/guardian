@@ -112,26 +112,18 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
     resave: false,
     saveUninitialized: false,
     store: broMongoSession,
-    cookie: { sameSite: "none", secure: true }
+    cookie: { httpOnly: false }
   }
 );
 
-// cookie: {
-//   httpOnly: false,
-//   sameSite: "none",
-//   secure: false
-// }
+const corsConfig = {
+  origin: true,
+  credentials: true
+};
 
 app.use(adminBro.options.rootPath, adminRouter);
 app.use(helmet());
-app.use(
-  cors({
-    origin: function(origin, callback) {
-      callback(null, origin);
-    },
-    credentials: true
-  })
-);
+app.use(cors(corsConfig));
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
