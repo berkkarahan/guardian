@@ -64,7 +64,7 @@ const optional = jwt({
 
 const attachUser = tryCatch(async (req, res, next) => {
   if (!req.user) {
-    await res.status(403).json({
+    return res.status(403).json({
       error: "User can't be attached to req.user from database."
     });
   }
@@ -82,7 +82,7 @@ const attachUserOptional = tryCatch(async (req, res, next) => {
 const verified = tryCatch(async (req, res, next) => {
   const verificationStatus = await req.user.isVerified();
   if (!verificationStatus) {
-    await res.status(403).json({
+    return res.status(403).json({
       error: "User not verified."
     });
   }

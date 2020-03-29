@@ -15,38 +15,38 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
   });
   await passport.authenticate("local", async function(err, user, info) {
     if (err) {
-      await res.status(403).json(info);
+      return res.status(403).json(info);
     }
     if (user) {
       const userJson = await user.userToJSON();
       req.login(user, async loginError => {
         if (loginError) {
-          await res.status(403).json(loginError);
+          return res.status(403).json(loginError);
         }
       });
-      await res.status(200).json({ user: userJson });
+      return res.status(200).json({ user: userJson });
     }
-    await res.status(403).json(info);
+    res.status(403).json(info);
   })(req, res, next);
 });
 
 const loginHandler = async (req, res, next) => {
   const { user } = req;
   if (!user) {
-    await res.status(403);
+    return res.status(403);
   }
   req.logIn(user, function(err) {
     if (err) {
       return next(err);
     }
-    return res.status(200).json(user);
+    res.status(200).json(user);
   });
 };
 
 const loginHandlerJwt = tryCatch(async (req, res, next) => {
   const { user } = req;
   if (!user) {
-    await res.status(403);
+    return res.status(403);
   }
   const jwt = await user.generateJWT();
   res.status(200).json({ jwt: jwt });
@@ -55,7 +55,7 @@ const loginHandlerJwt = tryCatch(async (req, res, next) => {
 // Different from previous, this is served over GET request.
 const logoutUserv2 = tryCatch(async (req, res, next) => {
   await req.logout();
-  await res.status(200).json();
+  res.status(200).json();
 });
 
 const logoutUserJwt = tryCatch(async (req, res, next) => {
@@ -69,7 +69,7 @@ const logoutUserJwt = tryCatch(async (req, res, next) => {
     await blacklistToken.generateBlacklistToken(token, req.user);
     return res.status(200).send();
   }
-  await res
+  res
     .status(403)
     .json({ error: "Token was already blacklisted.", token: tokenObj });
 });
