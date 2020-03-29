@@ -71,3 +71,6 @@ doppio_archive/
 
 # untrack adminbro
 .adminbro
+
+# untrack csv folder
+csv/

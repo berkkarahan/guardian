@@ -52,6 +52,10 @@ const connectDB = function() {
   }
 };
 
+const connectUri = function(uri) {
+  return mongoose.connect(uri);
+};
+
 const asyncConnectDB = async function() {
   if (isTest) {
     return await mongoose.connect(config.mongo_test);
@@ -75,6 +79,7 @@ const asyncConnectDB = async function() {
 
 export default {
   connect: connectDB,
+  connectUri: connectUri,
   asyncConnect: asyncConnectDB,
   models: {
     user: User,
