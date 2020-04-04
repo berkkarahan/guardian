@@ -49,6 +49,17 @@ const loginHandlerJwt = tryCatch(async (req, res, next) => {
     return res.status(403);
   }
   const jwt = await user.generateJWT();
+
+  // Delete timed out blacklist tokens from db on user's next login
+  const blacklistedTokens = await Token.find({ user: user, type: "blacklist" });
+  if (blacklistedTokens) {
+    blacklistedTokens.forEach(async blacklistToken => {
+      const verificationStatus = await blacklistToken.validateToken();
+      if (!verificationStatus) {
+        await blacklistToken.remove();
+      }
+    });
+  }
   res.status(200).json({ jwt: jwt });
 });
 
