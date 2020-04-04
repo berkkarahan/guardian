@@ -10,12 +10,12 @@ const validateVerification = tryCatch(async (req, res, next) => {
   const token = await Token.findOne({ token_uuid: tokenUUID });
 
   if (!token) {
-    await res.status(403).json({ message: "Token not found" });
+    return res.status(403).json({ message: "Token not found" });
   }
 
   const verificationResult = await token.verifyUser();
   if (!verificationResult) {
-    await res.status(403).json({ message: "Verification failed." });
+    return res.status(403).json({ message: "Verification failed." });
   }
   await token.remove();
   res.status(201).json({ message: "Verification successful." });

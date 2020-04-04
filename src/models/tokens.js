@@ -13,7 +13,7 @@ const tokenSchema = new mongoose.Schema(
     },
     token_type: {
       type: String,
-      enum: ["verification", "pwdreset"]
+      enum: ["verification", "pwdreset", "blacklist"]
     },
     token_uuid: {
       type: String,
@@ -54,6 +54,18 @@ tokenSchema.methods.resetPassword = async function(password) {
     return false;
   }
   await User.findByIdAndUpdate(this.user._id, { password: password });
+};
+
+tokenSchema.methods.generateBlacklistToken = async function(
+  jwtToken,
+  userObject
+) {
+  const currentToken = this;
+  currentToken.jwt_token = jwtToken;
+  currentToken.token_type = "blacklist";
+  currentToken.token_uuid = uuid();
+  currentToken.user = userObject;
+  await currentToken.save();
 };
 
 tokenSchema.methods.generateVerificationToken = async function(userObject) {

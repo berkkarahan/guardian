@@ -1,33 +1,25 @@
 import express from "express";
 import reviewController from "../../../controllers/review";
-import passportConfig from "../../../config/passport";
+import jwtAuth from "../../../config/jwtAuth";
 
 const reviewRouter = express.Router();
 
-reviewRouter.post(
-  "/create",
-  passportConfig.utils.verified,
-  reviewController.create
-);
+reviewRouter.post("/create", jwtAuth.authVerified, reviewController.create);
 
 reviewRouter.post(
   "/:subdoc/like",
   reviewController.parameterChecker,
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   reviewController.update.likes
 );
 
 reviewRouter.post(
   "/:subdoc/dislike",
   reviewController.parameterChecker,
-  passportConfig.utils.verified,
+  jwtAuth.authVerified,
   reviewController.update.dislikes
 );
 
-reviewRouter.post(
-  "/delete",
-  passportConfig.utils.verified,
-  reviewController.delete
-);
+reviewRouter.post("/delete", jwtAuth.authVerified, reviewController.delete);
 
 export default reviewRouter;

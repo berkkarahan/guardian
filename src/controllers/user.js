@@ -31,12 +31,12 @@ const updateRestrictedFields = concat(createRestrictedFields, [
 const getUserDetails = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
   const userJson = await user.toJSON();
-  await res.status(200).json(userJson);
+  res.status(200).json(userJson);
 });
 
 const getUserProfile = tryCatch(async (req, res, next) => {
   const user = await User.findById(req.user._id);
-  await res.status(200).json({
+  res.status(200).json({
     data: {
       userName: user.userName,
       email: user.email,
@@ -57,7 +57,7 @@ const getUser = tryCatch(async (req, res, next) => {
     res.status(403).json({ message: "User not found." });
   }
   const userJson = await loadedUser.userToJSON();
-  await res.status(200).json({ user: userJson });
+  res.status(200).json({ user: userJson });
 });
 
 const loginUserv2 = tryCatch(async (req, res, next) => {
@@ -73,25 +73,25 @@ const loginUserv2 = tryCatch(async (req, res, next) => {
   });
   await passport.authenticate("local", async function(err, user, info) {
     if (err) {
-      await res.status(403).json(info);
+      return res.status(403).json(info);
     }
     if (user) {
       const userJson = await user.userToJSON();
       req.login(user, async loginError => {
         if (loginError) {
-          await res.status(403).json(loginError);
+          return res.status(403).json(loginError);
         }
       });
-      await res.status(200).json({ user: userJson });
+      return res.status(200).json({ user: userJson });
     }
-    await res.status(403).json(info);
+    res.status(403).json(info);
   })(req, res, next);
 });
 
 const loginHandler = async (req, res, next) => {
   const { user } = req;
   if (!user) {
-    await res.status(403);
+    return res.status(403);
   }
   req.logIn(user, function(err) {
     if (err) {
@@ -101,10 +101,29 @@ const loginHandler = async (req, res, next) => {
   });
 };
 
+const loginHandlerJwt = tryCatch(async (req, res, next) => {
+  const { user } = req;
+  if (!user) {
+    return res.status(403);
+  }
+  const jwt = await user.generateJWT();
+  res.status(200).json({ jwt: jwt });
+});
+
 // Different from previous, this is served over GET request.
 const logoutUserv2 = tryCatch(async (req, res, next) => {
   await req.logout();
-  await res.status(200).json();
+  res.status(200).json();
+});
+
+const logoutUserJwt = tryCatch(async (req, res, next) => {
+  const token = req.body.jwt;
+  const tokenObj = new Token({ jwt_token: token });
+  if (await tokenObj.validateToken()) {
+    tokenObj.token_type = "blacklist";
+    await tokenObj.save();
+  }
+  res.status(200).json();
 });
 
 const createUser = tryCatch(async (req, res, next) => {
@@ -130,7 +149,7 @@ const createUser = tryCatch(async (req, res, next) => {
   const verifUrl = `${baseUrl}/api/auth/verification?uuid=${verifToken.token_uuid}`;
   await mailer.verification.test(verifUrl);
   const userJson = await user.userToJSON();
-  await res.status(201).json(userJson);
+  res.status(201).json(userJson);
 });
 
 const updateUser = tryCatch(async (req, res, next) => {
@@ -142,7 +161,7 @@ const updateUser = tryCatch(async (req, res, next) => {
     req.body.user
   );
   const userJson = user.userToJSON();
-  await res.status(200).json(userJson);
+  res.status(200).json(userJson);
 });
 
 const deactivateUser = tryCatch(async (req, res, next) => {
@@ -155,7 +174,7 @@ const deactivateUser = tryCatch(async (req, res, next) => {
     );
   }
   await user.save();
-  await res.status(200).json();
+  res.status(200).json();
 });
 
 export default {
@@ -166,6 +185,6 @@ export default {
   update: updateUser,
   deactivate: deactivateUser,
   login: loginUserv2,
-  loginHandler: loginHandler,
-  logout: logoutUserv2
+  loginHandler: { cookie: loginHandler, jwt: loginHandlerJwt },
+  logout: { cookie: logoutUserv2, jwt: logoutUserJwt }
 };

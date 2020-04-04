@@ -44,7 +44,10 @@ const travelSlotsSchema = new mongoose.Schema(
 );
 
 travelSlotsSchema.pre("save", async function(next) {
-  this.title = `${this.fromCity}-${this.toCity}-${this.fromHour}:${this.fromMinute}-${this.toHour}:${this.toMinute}`;
+  if (!this.company) {
+    throw new Error("Can't save a travelslot without a company.");
+  }
+  this.title = `${this.company.name}-${this.fromCity}-${this.toCity}-${this.fromHour}:${this.fromMinute}-${this.toHour}:${this.toMinute}`;
   next();
 });
 

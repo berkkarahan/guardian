@@ -115,11 +115,12 @@ userSchema.methods.comparePassword = async function(password) {
 
 userSchema.methods.generateJWT = async function() {
   const payload = {
-    id: this._id,
+    _id: this._id,
     uuid: this.uuid,
     username: this.userName,
     email: this.email,
-    is_admin: this.is_admin
+    is_admin: this.is_admin,
+    is_verified: await this.isVerified()
   };
   const options = {
     expiresIn: config.jwt_expiresin,

@@ -2,7 +2,6 @@ import express from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import cors from "cors";
-import path from "path";
 import helmet from "helmet";
 import passport from "passport";
 import bodyparser from "body-parser";
@@ -20,6 +19,7 @@ import config from "./envvars";
 import mainRouter from "./routes/main";
 import tryCatch from "./utils/catcher";
 import db from "./db";
+import jwtAuth from "./config/jwtAuth";
 
 // User model
 const User = db.models.user;
@@ -81,12 +81,12 @@ const broMongoSession = new MongoStore({
   mongooseConnection: mongoose.connection,
   collection: "broSessions"
 });
-const sessionMongoStore = new MongoStore({
-  mongooseConnection: mongoose.connection,
-  ttl: 1 * 60 * 60, // 1 hour
-  autoRemove: "native",
-  collection: "appSessions"
-});
+// const sessionMongoStore = new MongoStore({
+//   mongooseConnection: mongoose.connection,
+//   ttl: 1 * 60 * 60, // 1 hour
+//   autoRemove: "native",
+//   collection: "appSessions"
+// });
 
 // Passport serialization settings for session
 passport.use("local", passportSettings.customLocalStrategy);
@@ -94,28 +94,6 @@ passport.serializeUser(passportSettings.localSerializeUser);
 passport.deserializeUser(passportSettings.localDeserializer);
 
 const app = express();
-
-const htmlDir = path.join(__dirname, "../ride_n_rate/src/pages/");
-const cssDir = path.join(__dirname, "../ride_n_rate/src/css/");
-const fontsDir = path.join(__dirname, "../ride_n_rate/src/fonts/");
-const imagesDir = path.join(__dirname, "../ride_n_rate/src/images/");
-const jsDir = path.join(__dirname, "../ride_n_rate/src/js/");
-const bundleDir = path.join(__dirname, "../ride_n_rate/bundle/");
-app.use("/web", express.static(htmlDir));
-app.use("/css", express.static(cssDir));
-app.use("/fonts", express.static(fontsDir));
-app.use("/images", express.static(imagesDir));
-app.use("/js", express.static(jsDir));
-app.use("/bundle", express.static(bundleDir));
-
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
 
 // Admin bro settings for the admin page
 const predefinedBroRouter = express.Router();
@@ -139,43 +117,35 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
   }
 );
 
-// cookie: {
-//   httpOnly: false,
-//   sameSite: "none",
-//   secure: false
-// }
+const corsConfig = {
+  origin: true,
+  credentials: true
+};
 
 app.use(adminBro.options.rootPath, adminRouter);
 app.use(helmet());
-app.use(
-  cors({
-    origin: function(origin, callback) {
-      callback(null, origin);
-    },
-    credentials: true
-  })
-);
+app.use(cors(corsConfig));
 app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(cookieparser(config.cookie_secret));
-app.use(
-  session({
-    name: "app.session.id",
-    secret: config.cookie_secret,
-    resave: false,
-    saveUninitialized: false,
-    store: sessionMongoStore,
-    cookie: { httpOnly: false }
-  })
-);
+// app.use(
+//   session({
+//     name: "app.session.id",
+//     secret: config.cookie_secret,
+//     resave: false,
+//     saveUninitialized: false,
+//     store: sessionMongoStore,
+//     cookie: { sameSite: "none", secure: true }
+//   })
+// );
 
-// cookie: {
-//   httpOnly: false,
-//   sameSite: "none",
-//   secure: false
-// }
+// // cookie: {
+// //   httpOnly: false,
+// //   sameSite: "none",
+// //   secure: false
+// // }
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -189,6 +159,8 @@ if (!isProduction) {
   app.use(errorhandler());
 }
 
+// set token to req context
+app.use(jwtAuth.middleware);
 // Register general limiter
 app.use("/api/", generalLimiter);
 // Register routes here

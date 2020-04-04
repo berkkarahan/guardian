@@ -28,7 +28,7 @@ const createReview = tryCatch(async (req, res, next) => {
     vehicle
   };
   if (!travelslot) {
-    await res.status(403).json({
+    res.status(403).json({
       error: "A review must have both a travelslot attached to it."
     });
   }
@@ -39,7 +39,7 @@ const createReview = tryCatch(async (req, res, next) => {
     // comment and rating
     if (docObj) {
       if (!docObj.comment && !docObj.rating) {
-        await res.status(403).json({
+        return res.status(403).json({
           error:
             "Minimal payload for a subreview must include comment and rating."
         });
@@ -64,7 +64,7 @@ const createReview = tryCatch(async (req, res, next) => {
   }
 
   await review.save();
-  await res.status(201).json({
+  res.status(201).json({
     data: {
       reviewUUID: review.uuid
     }
@@ -86,7 +86,7 @@ const subDocParamCheck = async (req, res, next) => {
   if (subDocuments.includes(subdoc)) {
     next();
   }
-  await res.status(403).json({
+  res.status(403).json({
     message: "/api/review/:subdoc/... subdoc parameter is entered wrong."
   });
 };
@@ -112,7 +112,7 @@ const updateDislikes = tryCatch(async (req, res, next) => {
 const updateReview = tryCatch(async (req, res, next) => {
   const { uuid } = req.body.review;
   if (!uuid) {
-    await res
+    return res
       .status(403)
       .json({ error: "Review uuid is required for update operation." });
   }
@@ -148,7 +148,7 @@ const updateReview = tryCatch(async (req, res, next) => {
     // comment and rating
     if (docObj) {
       if (!docObj.comment && !docObj.rating) {
-        await res.status(403).json({
+        return res.status(403).json({
           error:
             "Minimal payload for a subreview must include comment and rating"
         });
@@ -170,7 +170,7 @@ const updateReview = tryCatch(async (req, res, next) => {
   }
 
   await review.save();
-  await res.status(200).json({
+  res.status(200).json({
     data: {
       reviewUUID: review.uuid
     }
@@ -180,7 +180,7 @@ const updateReview = tryCatch(async (req, res, next) => {
 const deleteReview = tryCatch(async (req, res, next) => {
   const { uuid } = req.body.review;
   if (!uuid) {
-    await res
+    return res
       .status(403)
       .json({ error: "Review uuid is required for update operation." });
   }

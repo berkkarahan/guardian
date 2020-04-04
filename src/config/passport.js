@@ -58,7 +58,7 @@ const localDeserializeUser = async function(id, done) {
 
 const isAuthenticated = async (req, res, next) => {
   if (!req.user) {
-    await res.status(403).json({
+    return res.status(403).json({
       error: "User not authenticated."
     });
   }
@@ -67,13 +67,13 @@ const isAuthenticated = async (req, res, next) => {
 
 const isAuthenticatedandVerified = async (req, res, next) => {
   if (!req.user) {
-    await res.status(403).json({
+    return res.status(403).json({
       error: "User not authenticated."
     });
   }
   const verificationStatus = await req.user.isVerified();
   if (!verificationStatus) {
-    await res.status(403).json({
+    return res.status(403).json({
       error: "User not verified."
     });
   }
