@@ -1,4 +1,4 @@
-// import "@babel/polyfill";
+import "@babel/polyfill";
 import { uuid } from "uuidv4";
 import { argv } from "yargs";
 import csv from "csv-parser";
