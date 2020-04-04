@@ -18,6 +18,8 @@ companySchema.pre("save", async function(next) {
   next();
 });
 
+companySchema.index({ name: 1 }, { collation: { locale: "en", strength: 2 } });
+
 const Company = mongoose.model("Company", companySchema);
 
 const travelSlots = merge(

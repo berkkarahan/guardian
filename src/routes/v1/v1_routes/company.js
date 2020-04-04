@@ -37,7 +37,7 @@ companyRouter.post(
 );
 
 // public routes
-companyRouter.post("/", companyCRUD.controllers.selectOne);
+companyRouter.get("/:resourceUUID", company.getByUUID.company);
 companyRouter.post("/all", company.readMany.company);
 
 const travelslotsRouter = express.Router();
@@ -70,8 +70,8 @@ travelslotsRouter.post(
   company.verify.travelslot
 );
 
-// logged in routes
-travelslotsRouter.post("/", travelslotsCRUD.controllers.selectOne);
+// public travelsot routes
+travelslotsRouter.get("/:resourceUUID", company.getByUUID.travelslot);
 travelslotsRouter.post("/all", company.readMany.travelslot);
 
 export default {

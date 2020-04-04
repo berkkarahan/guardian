@@ -57,6 +57,7 @@
     "ip6addr": "^0.2.3",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
+    "mathjs": "^6.6.2",
     "moment": "^2.24.0",
     "mongoose": "^5.9.3",
     "morgan": "^1.9.1",
