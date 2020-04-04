@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { isIP, isEmail } from "validator";
 import { merge } from "lodash";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import abstract from "./abstract";
 import config from "../envvars";
 
