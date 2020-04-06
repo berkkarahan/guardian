@@ -1,12 +1,9 @@
-const buildMongooseQuery = (queryObject, nameSearchStr, pagination) => {
+const buildMongooseQuery = (queryObject, nameSearchStr) => {
   queryObject
     .where("name")
     .eq(nameSearchStr.toLowerCase())
     .collation({ locale: "en", strength: 2 });
-  if (pagination) {
-    queryObject.limit(pagination.limit).skip(pagination.skip);
-  }
-  return queryObject.sort({ createdAt: -1 });
+  return queryObject;
 };
 
 export default {

@@ -1,6 +1,6 @@
 import db from "../db";
+import paginateQuery from "../utils/filters/utils";
 import companyFilters from "../utils/filters/company";
-import companyHelpers from "./helpers/company";
 import travelslotFilters from "../utils/filters/travelslot";
 import tryCatch from "../utils/catcher";
 
@@ -9,7 +9,7 @@ const Travelslots = db.models.travelslots;
 
 const getByUUID = async (Collection, req, res, next) => {
   const { resourceUUID } = req.params;
-  const record = Collection.findOne({ uuid: resourceUUID });
+  const record = await Collection.findOne({ uuid: resourceUUID });
   res.status(200).json(record);
 };
 
@@ -41,13 +41,12 @@ const companyReadMany = tryCatch(async (req, res, next) => {
   // return all if no filters given
   if (!req.body.filters) {
     const records = await Company.find();
-    const reviewCounts = await companyHelpers.companyReviewCounts(records);
     // combine
     const finalResponse = await Promise.all(
       records.map(async rec => {
-        const found = reviewCounts.find(y => y.companyID === rec.id);
         const r = { ...rec.toJSON() };
-        r.count = found.count;
+        r.reviewCount = await rec.calculateReviewCounts();
+        r.calculatedAverageRating = await rec.calculateAverageRating();
         return r;
       })
     );
@@ -60,16 +59,16 @@ const companyReadMany = tryCatch(async (req, res, next) => {
       .status(404)
       .json({ error: "Name parameter must exist if filtering companies." });
   }
-  const queryObject = companyFilters.query(Company.find(), name, pagination);
-  const records = await queryObject.exec();
-  const reviewCounts = await companyHelpers.companyReviewCounts(records);
+  const queryObject = companyFilters.query(Company.find(), name);
+  const paginatedQuery = paginateQuery(queryObject, pagination.pageNumber);
+  const records = await paginatedQuery.exec();
 
   // combine
   const finalResponse = await Promise.all(
     records.map(async rec => {
-      const found = reviewCounts.find(y => y.companyID === rec.id);
       const r = { ...rec.toJSON() };
-      r.count = found.count;
+      r.reviewCount = await rec.calculateReviewCounts();
+      r.averageCount = await rec.calculateAverageRating();
       return r;
     })
   );
@@ -77,7 +76,6 @@ const companyReadMany = tryCatch(async (req, res, next) => {
 });
 
 const travelslotsReadMany = tryCatch(async (req, res, next) => {
-  // await customReadMany(Company, req, res, next);
   if (!req.body.filters) {
     const records = await Travelslots.find();
     return res.status(200).json(records);
@@ -85,17 +83,17 @@ const travelslotsReadMany = tryCatch(async (req, res, next) => {
   const { query, pagination } = req.body.filters;
   const { fromHour } = query;
   if (!fromHour) {
-    return res
-      .status(404)
-      .json({ error: "fromHour parameter must exist if filtering companies." });
+    return res.status(404).json({
+      error: "fromHour parameter must exist if filtering travelslots."
+    });
   }
   const queryObject = travelslotFilters.query(
     Travelslots.find(),
-    travelslotFilters.parse(req.body.filters),
-    pagination
+    travelslotFilters.parse(req.body.filters)
   );
-  const records = await queryObject.exec();
-  res.status(200).json(records);
+  const paginatedQuery = paginateQuery(queryObject, pagination.pageNumber);
+  const response = await paginatedQuery.exec();
+  res.status(200).json(response);
 });
 
 const customCreate = async (Collection, req, res, next) => {

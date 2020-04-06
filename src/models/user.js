@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 import { isIP, isEmail } from "validator";
 import { merge } from "lodash";
 import jwt from "jsonwebtoken";
@@ -114,7 +115,9 @@ userSchema.methods.comparePassword = async function(password) {
 };
 
 userSchema.methods.generateJWT = async function() {
+  const randomBytes = crypto.randomBytes(32).toString("hex");
   const payload = {
+    randomBytes: randomBytes,
     _id: this._id,
     uuid: this.uuid,
     username: this.userName,

@@ -1,13 +1,14 @@
 import mongoose from "mongoose";
 import { merge } from "lodash";
 import abstract from "./abstract";
+import Review from "./review";
 
 // title field is required for adminbro to show proper titles at admin references
 const company = merge(
   {
     title: { type: String },
     name: { type: String },
-    overallrating: { type: Number, min: 1, max: 5 }
+    averageRating: { type: Number, min: 0, max: 5 }
   },
   abstract.baseCompanySchema
 );
@@ -17,6 +18,28 @@ companySchema.pre("save", async function(next) {
   this.title = `Title: ${this.name}`;
   next();
 });
+
+companySchema.methods.calculateReviewCounts = async function() {
+  const reviews = await Review.find({ company: this });
+  return reviews.length;
+};
+
+companySchema.methods.calculateAverageRating = async function() {
+  const reviews = await Review.find({ company: this });
+  const sumReviewAverages = reviews.reduce(
+    (r1, r2) => r1.averageRating + r2.averageRating,
+    0
+  );
+  let averageRating;
+  if (sumReviewAverages > 0) {
+    averageRating = sumReviewAverages / reviews.length;
+  } else {
+    averageRating = 0;
+  }
+  this.averageRating = averageRating;
+  await this.save();
+  return averageRating;
+};
 
 companySchema.index({ name: 1 }, { collation: { locale: "en", strength: 2 } });
 
@@ -52,6 +75,16 @@ travelSlotsSchema.pre("save", async function(next) {
   this.title = `${this.company.name}-${this.fromCity}-${this.toCity}-${this.fromHour}:${this.fromMinute}-${this.toHour}:${this.toMinute}`;
   next();
 });
+
+travelSlotsSchema.index(
+  { fromCity: 1 },
+  { collation: { locale: "en", strength: 2 } }
+);
+
+travelSlotsSchema.index(
+  { toCity: 1 },
+  { collation: { locale: "en", strength: 2 } }
+);
 
 const Travelslots = mongoose.model("Travelslots", travelSlotsSchema);
 

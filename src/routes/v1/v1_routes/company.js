@@ -4,6 +4,7 @@ import company from "../../../controllers/company";
 import db from "../../../db";
 import permissions from "../../../utils/permissions";
 import jwtAuth from "../../../config/jwtAuth";
+import travelslotsHelper from "../../../controllers/helpers/travelslots";
 
 const companyRouter = express.Router();
 const companyCRUD = initBase(db.models.company);
@@ -42,6 +43,9 @@ companyRouter.post("/all", company.readMany.company);
 
 const travelslotsRouter = express.Router();
 const travelslotsCRUD = initBase(db.models.travelslots);
+
+// Helper routes
+travelslotsRouter.get("/cities", travelslotsHelper.cities);
 
 // admin only routes
 // travelSlot creatin is not admin only but will still require verification.
