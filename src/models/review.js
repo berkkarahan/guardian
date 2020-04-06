@@ -13,6 +13,7 @@ const review = merge(
     details: { type: String },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     travelslot: { type: mongoose.Schema.Types.ObjectId, ref: "Travelslots" },
+    company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
     averageRating: { type: Number },
     driver: commentSchemas.driver,
     hostess: commentSchemas.hostess,

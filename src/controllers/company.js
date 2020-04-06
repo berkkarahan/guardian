@@ -1,5 +1,6 @@
 import db from "../db";
 import companyFilters from "../utils/filters/company";
+import companyHelpers from "./helpers/company";
 import travelslotFilters from "../utils/filters/travelslot";
 import tryCatch from "../utils/catcher";
 
@@ -36,28 +37,21 @@ const verifyTravelslot = tryCatch(async (req, res, next) => {
   res.status(200).send();
 });
 
-// Needs pagination, limiting or skipping.
-// const customReadMany = async (Collection, req, res, next) => {
-//   if (req.body.filters) {
-//     const { query, pagination } = req.body.filters;
-//     const parsedFilters = filterParser.parse(query);
-//     const queryObject = filterParser.query(
-//       Collection.find(),
-//       parsedFilters,
-//       pagination
-//     );
-//     const records = await queryObject.exec();
-//     return res.status(200).json(records);
-//   }
-//   const records = await Collection.find();
-//   res.status(200).json(records);
-// };
-
 const companyReadMany = tryCatch(async (req, res, next) => {
   // return all if no filters given
   if (!req.body.filters) {
     const records = await Company.find();
-    return res.status(200).json(records);
+    const reviewCounts = await companyHelpers.companyReviewCounts(records);
+    // combine
+    const finalResponse = await Promise.all(
+      records.map(async rec => {
+        const found = reviewCounts.find(y => y.companyID === rec.id);
+        const r = { ...rec.toJSON() };
+        r.count = found.count;
+        return r;
+      })
+    );
+    return res.status(200).send(finalResponse);
   }
   const { query, pagination } = req.body.filters;
   const { name } = query;
@@ -68,7 +62,18 @@ const companyReadMany = tryCatch(async (req, res, next) => {
   }
   const queryObject = companyFilters.query(Company.find(), name, pagination);
   const records = await queryObject.exec();
-  res.status(200).json(records);
+  const reviewCounts = await companyHelpers.companyReviewCounts(records);
+
+  // combine
+  const finalResponse = await Promise.all(
+    records.map(async rec => {
+      const found = reviewCounts.find(y => y.companyID === rec.id);
+      const r = { ...rec.toJSON() };
+      r.count = found.count;
+      return r;
+    })
+  );
+  res.status(200).send(finalResponse);
 });
 
 const travelslotsReadMany = tryCatch(async (req, res, next) => {
