@@ -14,6 +14,7 @@ const createReview = tryCatch(async (req, res, next) => {
     comfort,
     vehicle,
     travelslot,
+    company,
     details,
     showuser
   } = req.body.review;
@@ -27,9 +28,9 @@ const createReview = tryCatch(async (req, res, next) => {
     comfort,
     vehicle
   };
-  if (!travelslot) {
+  if (!travelslot && !company) {
     res.status(403).json({
-      error: "A review must have both a travelslot attached to it."
+      error: "A review must have both a travelslot and company attached to it."
     });
   }
   const review = new Review();
@@ -49,9 +50,10 @@ const createReview = tryCatch(async (req, res, next) => {
       review[docName] = docObj;
     }
   });
-  // set user & travelslot reference
+  // set model ref fields
   review.user = req.user;
   review.travelslot = travelslot;
+  review.company = company;
 
   if (showuser) {
     review.showuser = true;
@@ -87,7 +89,8 @@ const subDocParamCheck = async (req, res, next) => {
     next();
   }
   res.status(403).json({
-    message: "/api/review/:subdoc/... subdoc parameter is entered wrong."
+    message: "/api/review/:subdoc/... subdoc parameter is entered wrong.",
+    validSubDocuments: subDocuments
   });
 };
 
