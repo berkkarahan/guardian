@@ -78,7 +78,12 @@ const companyReadMany = tryCatch(async (req, res, next) => {
 const travelslotsReadMany = tryCatch(async (req, res, next) => {
   if (!req.body.filters) {
     const records = await Travelslots.find();
-    return res.status(200).json(records);
+    const jsonResponse = await Promise.all(
+      records.map(async rec => {
+        return rec.toJSON({ virtuals: true });
+      })
+    );
+    return res.status(200).json(jsonResponse);
   }
   const { query, pagination } = req.body.filters;
   const { fromHour, fromCity } = query;
@@ -95,7 +100,12 @@ const travelslotsReadMany = tryCatch(async (req, res, next) => {
   );
   const paginatedQuery = paginateQuery(queryObject, pagination.pageNumber);
   const response = await paginatedQuery.exec();
-  res.status(200).json(response);
+  const jsonResponse = await Promise.all(
+    response.map(async rec => {
+      return rec.toJSON({ virtuals: true });
+    })
+  );
+  res.status(200).json(jsonResponse);
 });
 
 const customCreate = async (Collection, req, res, next) => {

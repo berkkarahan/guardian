@@ -58,6 +58,7 @@ const travelSlots = merge(
       type: String,
       enum: ["standard", "3seater", "lux", "other"]
     },
+    petAllowed: { type: Boolean },
     daytime: { type: String, enum: ["day", "night"] },
     company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" }
   },
@@ -74,6 +75,20 @@ travelSlotsSchema.pre("save", async function(next) {
   }
   this.title = `${this.company.name}-${this.fromCity}-${this.toCity}-${this.fromHour}:${this.fromMinute}-${this.toHour}:${this.toMinute}`;
   next();
+});
+
+travelSlotsSchema.virtual("is3Seater").get(function() {
+  if (["3seater", "lux"].indexOf(this.luxuryCategory) >= 0) {
+    return true;
+  }
+  return false;
+});
+
+travelSlotsSchema.virtual("isPetAllowed").get(function() {
+  if (!this.petAllowed) {
+    return false;
+  }
+  return true;
 });
 
 travelSlotsSchema.index(
