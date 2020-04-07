@@ -87,6 +87,7 @@ const travelslotsReadMany = tryCatch(async (req, res, next) => {
       error: "fromHour parameter must exist if filtering travelslots."
     });
   }
+
   const queryObject = travelslotFilters.query(
     Travelslots.find(),
     travelslotFilters.parse(req.body.filters)

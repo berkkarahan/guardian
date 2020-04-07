@@ -1,14 +1,16 @@
 import { mod } from "mathjs";
 
 const parseFilters = reqFiltersQuery => {
-  const { fromHour, timeBetween } = reqFiltersQuery;
+  const { fromHour, timeBetween } = reqFiltersQuery.query;
   let timeHorizon;
   if (!timeBetween) {
     timeHorizon = 3;
   } else {
     timeHorizon = timeBetween;
   }
+
   const fromHourLimit = mod(fromHour + timeHorizon, 24);
+
   return {
     from: fromHour,
     to: fromHourLimit,
