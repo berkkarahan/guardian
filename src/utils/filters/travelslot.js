@@ -14,13 +14,12 @@ const parseFilters = reqFiltersQuery => {
   return {
     from: fromHour,
     to: fromHourLimit,
-    fromCity: reqFiltersQuery.fromCity,
-    toCity: reqFiltersQuery.toCity
+    fromCity: reqFiltersQuery.query.fromCity,
+    toCity: reqFiltersQuery.query.toCity
   };
 };
 
 const buildMongooseQuery = (queryObject, parsedQuery) => {
-  // fromHour filter
   if (parsedQuery.to > parsedQuery.from) {
     queryObject.where("fromHour").gte(parsedQuery.from);
     queryObject.where("fromHour").lte(parsedQuery.to);
@@ -33,9 +32,7 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
     queryObject
       .where("fromCity")
       .eq(parsedQuery.fromCity.toLowerCase())
-      .collation({ locale: "en", strength: 2 });
-
-    queryObject
+      .collation({ locale: "en", strength: 2 })
       .where("toCity")
       .eq(parsedQuery.toCity.toLowerCase())
       .collation({ locale: "en", strength: 2 });
