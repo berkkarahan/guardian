@@ -81,10 +81,11 @@ const travelslotsReadMany = tryCatch(async (req, res, next) => {
     return res.status(200).json(records);
   }
   const { query, pagination } = req.body.filters;
-  const { fromHour } = query;
-  if (!fromHour) {
+  const { fromHour, fromCity } = query;
+  if (!fromHour && !fromCity) {
     return res.status(404).json({
-      error: "fromHour parameter must exist if filtering travelslots."
+      error:
+        "fromHour and fromCity parameters must exist if filtering travelslots."
     });
   }
 

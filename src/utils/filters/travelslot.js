@@ -28,11 +28,14 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
     queryObject.where("fromHour").lte(parsedQuery.from);
   }
 
-  if (parsedQuery.fromCity && parsedQuery.toCity) {
+  if (parsedQuery.fromCity) {
     queryObject
       .where("fromCity")
       .eq(parsedQuery.fromCity.toLowerCase())
-      .collation({ locale: "en", strength: 2 })
+      .collation({ locale: "en", strength: 2 });
+  }
+  if (parsedQuery.toCity) {
+    queryObject
       .where("toCity")
       .eq(parsedQuery.toCity.toLowerCase())
       .collation({ locale: "en", strength: 2 });
