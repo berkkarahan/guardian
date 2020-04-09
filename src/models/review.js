@@ -5,6 +5,7 @@ import commentSchemas from "./comments";
 import company from "./company";
 
 const Travelslot = company.travelslots;
+const Company = company.company;
 
 const review = merge(
   {
@@ -68,6 +69,13 @@ reviewSchema.pre("save", async function(next) {
     average = 0;
   }
   currentReview.averageRating = average;
+  next();
+});
+
+// Update company average rating each time a review is made
+reviewSchema.pre("save", async function(next) {
+  const reviewCompany = await Company.findById(this.company);
+  await reviewCompany.calculateAverageRating();
   next();
 });
 

@@ -2,6 +2,8 @@ import db from "../db";
 import paginateQuery from "../utils/filters/utils";
 import companyFilters from "../utils/filters/company";
 import travelslotFilters from "../utils/filters/travelslot";
+import travelslotHelpers from "./helpers/travelslots";
+import companyHelpers from "./helpers/company";
 import tryCatch from "../utils/catcher";
 
 const Company = db.models.company;
@@ -41,14 +43,8 @@ const companyReadMany = tryCatch(async (req, res, next) => {
   // return all if no filters given
   if (!req.body.filters) {
     const records = await Company.find();
-    // combine
-    const finalResponse = await Promise.all(
-      records.map(async rec => {
-        const r = { ...rec.toJSON() };
-        r.reviewCount = await rec.calculateReviewCounts();
-        r.calculatedAverageRating = await rec.calculateAverageRating();
-        return r;
-      })
+    const finalResponse = await companyHelpers.responseBuilders.company.all(
+      records
     );
     return res.status(200).send(finalResponse);
   }
@@ -61,16 +57,8 @@ const companyReadMany = tryCatch(async (req, res, next) => {
   }
   const queryObject = companyFilters.query(Company.find(), name);
   const paginatedQuery = paginateQuery(queryObject, pagination.pageNumber);
-  const records = await paginatedQuery.exec();
-
-  // combine
-  const finalResponse = await Promise.all(
-    records.map(async rec => {
-      const r = { ...rec.toJSON() };
-      r.reviewCount = await rec.calculateReviewCounts();
-      r.averageCount = await rec.calculateAverageRating();
-      return r;
-    })
+  const finalResponse = await companyHelpers.responseBuilders.company.all(
+    await paginatedQuery.exec()
   );
   res.status(200).send(finalResponse);
 });
@@ -78,10 +66,8 @@ const companyReadMany = tryCatch(async (req, res, next) => {
 const travelslotsReadMany = tryCatch(async (req, res, next) => {
   if (!req.body.filters) {
     const records = await Travelslots.find();
-    const jsonResponse = await Promise.all(
-      records.map(async rec => {
-        return rec.toJSON({ virtuals: true });
-      })
+    const jsonResponse = await travelslotHelpers.responseBuilders.travelslots.all(
+      records
     );
     return res.status(200).json(jsonResponse);
   }
@@ -99,11 +85,8 @@ const travelslotsReadMany = tryCatch(async (req, res, next) => {
     travelslotFilters.parse(req.body.filters)
   );
   const paginatedQuery = paginateQuery(queryObject, pagination.pageNumber);
-  const response = await paginatedQuery.exec();
-  const jsonResponse = await Promise.all(
-    response.map(async rec => {
-      return rec.toJSON({ virtuals: true });
-    })
+  const jsonResponse = await travelslotHelpers.responseBuilders.travelslots.all(
+    await paginatedQuery.exec()
   );
   res.status(200).json(jsonResponse);
 });

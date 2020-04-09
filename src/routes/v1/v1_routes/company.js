@@ -45,7 +45,7 @@ const travelslotsRouter = express.Router();
 const travelslotsCRUD = initBase(db.models.travelslots);
 
 // Helper routes
-travelslotsRouter.get("/cities", travelslotsHelper.cities);
+travelslotsRouter.get("/cities", travelslotsHelper.controllers.cities);
 
 // admin only routes
 // travelSlot creatin is not admin only but will still require verification.
