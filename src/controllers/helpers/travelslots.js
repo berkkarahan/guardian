@@ -22,10 +22,8 @@ const buildTravelslotsAllResponse = async travelslots => {
     travelslots.map(async rec => {
       const response = {};
       const currentCompany = await Company.findById(rec.company);
-      const [avgRating, cntReview] = await Promise.all(
-        currentCompany.calculateAverageRating(),
-        currentCompany.calculateReviewCounts()
-      );
+      const avgRating = await currentCompany.calculateAverageRating();
+      const cntReview = await currentCompany.calculateReviewCounts();
       response.company = {
         uuid: currentCompany.uuid,
         title: currentCompany.title,
