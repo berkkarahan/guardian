@@ -75,7 +75,9 @@ reviewSchema.pre("save", async function(next) {
 // Update company average rating each time a review is made
 reviewSchema.pre("save", async function(next) {
   const reviewCompany = await Company.findById(this.company);
+  const reviewTravelslot = await Travelslot.findById(this.travelslot);
   await reviewCompany.calculateAverageRating();
+  await reviewTravelslot.calculateAverageRating();
   next();
 });
 

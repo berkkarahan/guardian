@@ -1,22 +1,50 @@
 import { mod } from "mathjs";
 
 const parseFilters = reqFiltersQuery => {
+  const parsed = {};
   const { fromHour, timeBetween } = reqFiltersQuery.query;
   let timeHorizon;
   if (!timeBetween) {
-    timeHorizon = 3;
+    timeHorizon = 5;
   } else {
     timeHorizon = timeBetween;
   }
 
   const fromHourLimit = mod(fromHour + timeHorizon, 24);
 
-  return {
-    from: fromHour,
-    to: fromHourLimit,
-    fromCity: reqFiltersQuery.query.fromCity,
-    toCity: reqFiltersQuery.query.toCity
-  };
+  parsed.from = fromHour;
+  parsed.to = fromHourLimit;
+  parsed.fromCity = reqFiltersQuery.query.fromCity;
+  parsed.toCity = reqFiltersQuery.query.toCity;
+
+  const { isPetAllowed, is3Seater } = reqFiltersQuery.query;
+  if (isPetAllowed) {
+    switch (isPetAllowed) {
+      case 1:
+        parsed.isPetAllowed = true;
+        break;
+      case 0:
+        parsed.isPetAllowed = false;
+        break;
+      default:
+        parsed.isPetAllowed = false;
+    }
+  }
+
+  if (is3Seater) {
+    switch (is3Seater) {
+      case 1:
+        parsed.is3Seater = true;
+        break;
+      case 0:
+        parsed.is3Seater = false;
+        break;
+      default:
+        parsed.is3Seater = false;
+    }
+  }
+
+  return parsed;
 };
 
 const buildMongooseQuery = (queryObject, parsedQuery) => {
@@ -39,6 +67,13 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
       .where("toCity")
       .eq(parsedQuery.toCity.toLowerCase())
       .collation({ locale: "en", strength: 2 });
+  }
+  if (typeof parsedQuery.isPetAllowed === "boolean") {
+    queryObject.where("petAllowed").eq(parsedQuery.isPetAllowed);
+  }
+
+  if (typeof parsedQuery.is3Seater === "boolean") {
+    queryObject.where("luxuryCategory").in(["3seater", "lux"]);
   }
   return queryObject;
 };

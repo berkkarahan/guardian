@@ -60,6 +60,7 @@ const travelSlots = merge(
     },
     petAllowed: { type: Boolean },
     daytime: { type: String, enum: ["day", "night"] },
+    averageRating: { type: Number, max: 5 },
     company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" }
   },
   abstract.baseCompanySchema
@@ -68,6 +69,28 @@ const travelSlotsSchema = new mongoose.Schema(
   travelSlots,
   abstract.baseOptions
 );
+
+travelSlotsSchema.methods.calculateReviewCounts = async function() {
+  const reviews = await Review.find({ travelslot: this });
+  return reviews.length;
+};
+
+travelSlotsSchema.methods.calculateAverageRating = async function() {
+  const reviews = await Review.find({ travelslot: this });
+  const sumReviewAverages = reviews.reduce(
+    (r1, r2) => r1.averageRating + r2.averageRating,
+    0
+  );
+  let averageRating;
+  if (sumReviewAverages > 0) {
+    averageRating = sumReviewAverages / reviews.length;
+  } else {
+    averageRating = 0;
+  }
+  this.averageRating = averageRating;
+  await this.save();
+  return averageRating;
+};
 
 travelSlotsSchema.pre("save", async function(next) {
   if (!this.company) {

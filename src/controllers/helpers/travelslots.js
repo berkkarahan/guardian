@@ -22,16 +22,29 @@ const buildTravelslotsAllResponse = async travelslots => {
     travelslots.map(async rec => {
       const response = {};
       const currentCompany = await Company.findById(rec.company);
-      const avgRating = await currentCompany.calculateAverageRating();
-      const cntReview = await currentCompany.calculateReviewCounts();
+
+      const [
+        avgRatingCompany,
+        avgRatingTravelslot,
+        cntReviewCompany,
+        cntReviewTravelslot
+      ] = await Promise.all([
+        currentCompany.calculateAverageRating(),
+        rec.calculateAverageRating(),
+        currentCompany.calculateReviewCounts(),
+        rec.calculateReviewCounts()
+      ]);
+
       response.company = {
         uuid: currentCompany.uuid,
         title: currentCompany.title,
-        averageRating: avgRating,
-        reviewCount: cntReview
+        averageRating: avgRatingCompany,
+        reviewCount: cntReviewCompany
       };
       response.travelslot = {
         uuid: rec.uuid,
+        averageRating: avgRatingTravelslot,
+        reviewCount: cntReviewTravelslot,
         fromHour: rec.fromHour,
         fromMinute: rec.fromMinute,
         fromCity: rec.fromCity,
@@ -40,8 +53,6 @@ const buildTravelslotsAllResponse = async travelslots => {
           zeroPad(rec.fromMinute, 2)
         ),
         toCity: rec.toCity,
-        createdAt: rec.createdAt,
-        updatedAt: rec.updatedAt,
         luxuryCategory: rec.luxuryCategory,
         isPetAllowed: rec.isPetAllowed,
         is3Seater: rec.is3Seater
