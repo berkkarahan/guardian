@@ -27,10 +27,23 @@ const sendVerification = async (verifUrl, toMail) => {
   await mailTransport.sendMail(mailInfo);
 };
 
+const sendSupportMail = async mailBody => {
+  const mailInfo = {
+    from: config.sender_email,
+    to: config.sender_email,
+    cc: ["berkkarahan00@gmail.com", "ygzaydns@gmail.com"],
+    subject: `[SupportMail] from ${mailBody.username}-${mailBody.email}`,
+    text: mailBody.text
+  };
+
+  await mailTransport.sendMail(mailInfo);
+};
+
 const sendVerificationTest = async verifUrl => {
   await sendVerification(verifUrl, config.sender_email);
 };
 
 export default {
-  verification: { prod: sendVerification, test: sendVerificationTest }
+  verification: { prod: sendVerification, test: sendVerificationTest },
+  support: { prod: sendSupportMail }
 };

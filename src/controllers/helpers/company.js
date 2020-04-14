@@ -1,6 +1,28 @@
 import db from "../../db";
+import tryCatch from "../../utils/catcher";
 
 const Travelslots = db.models.travelslots;
+const Company = db.models.company;
+
+const getAvailableCitiesForCompany = tryCatch(async (req, res, next) => {
+  const { resourceUUID } = req.params;
+  if (!resourceUUID) {
+    return res.status(403).json({
+      error: {
+        message: "/cities/:UUID is required for this endpoint."
+      }
+    });
+  }
+  const company = await Company.findOne({ uuid: resourceUUID });
+  const [to, from] = await Promise.all([
+    Travelslots.find({ company: company._id }).distinct("toCity"),
+    Travelslots.find({ company: company._id }).distinct("fromCity")
+  ]);
+  res.status(200).json({
+    from: from,
+    to: to
+  });
+});
 
 const buildCompanyAllResponse = async records => {
   const arrayResponse = await Promise.all(
@@ -8,12 +30,10 @@ const buildCompanyAllResponse = async records => {
       const response = {};
 
       const [
-        avgRating,
         cntReview,
         petAllowedDistinct,
         luxuryCategories
       ] = await Promise.all([
-        rec.calculateAverageRating(),
         rec.calculateReviewCounts(),
         Travelslots.find({ company: rec._id }).distinct("petAllowed"),
         Travelslots.find({ company: rec._id }).distinct("luxuryCategory")
@@ -38,7 +58,7 @@ const buildCompanyAllResponse = async records => {
 
       response.uuid = rec.uuid;
       response.title = rec.title;
-      response.averateRating = avgRating;
+      response.averateRating = rec.averateRating;
       response.reviewCount = cntReview;
       response.information = {
         petAllowed: petAllowed,
@@ -51,5 +71,6 @@ const buildCompanyAllResponse = async records => {
 };
 
 export default {
+  controllers: { cities: getAvailableCitiesForCompany },
   responseBuilders: { company: { all: buildCompanyAllResponse } }
 };

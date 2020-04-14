@@ -5,9 +5,13 @@ import db from "../../../db";
 import permissions from "../../../utils/permissions";
 import jwtAuth from "../../../config/jwtAuth";
 import travelslotsHelper from "../../../controllers/helpers/travelslots";
+import companyHelper from "../../../controllers/helpers/company";
 
 const companyRouter = express.Router();
 const companyCRUD = initBase(db.models.company);
+
+// Helper routes
+companyRouter.get("/cities/:resourceUUID", companyHelper.controllers.cities);
 
 // change passportConfig.isAuthenticated to passportConfig.utils.verified
 // admin only routes

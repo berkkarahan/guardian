@@ -81,12 +81,6 @@ const broMongoSession = new MongoStore({
   mongooseConnection: mongoose.connection,
   collection: "broSessions"
 });
-// const sessionMongoStore = new MongoStore({
-//   mongooseConnection: mongoose.connection,
-//   ttl: 1 * 60 * 60, // 1 hour
-//   autoRemove: "native",
-//   collection: "appSessions"
-// });
 
 // Passport serialization settings for session
 passport.use("local", passportSettings.customLocalStrategy);
@@ -130,25 +124,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(cookieparser(config.cookie_secret));
-// app.use(
-//   session({
-//     name: "app.session.id",
-//     secret: config.cookie_secret,
-//     resave: false,
-//     saveUninitialized: false,
-//     store: sessionMongoStore,
-//     cookie: { sameSite: "none", secure: true }
-//   })
-// );
-
-// // cookie: {
-// //   httpOnly: false,
-// //   sameSite: "none",
-// //   secure: false
-// // }
 
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 
 mongoose.set("useNewUrlParser", true);
 mongoose.set("useFindAndModify", false);
