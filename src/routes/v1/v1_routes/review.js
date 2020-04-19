@@ -38,6 +38,10 @@ reviewRouter.post(
   reviewController.delete.subdoc
 );
 
-reviewRouter.post("/delete", jwtAuth.authVerified, reviewController.delete);
+reviewRouter.post(
+  "/delete",
+  jwtAuth.authVerified,
+  reviewController.delete.review
+);
 
 export default reviewRouter;
