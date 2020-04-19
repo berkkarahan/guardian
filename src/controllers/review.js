@@ -5,6 +5,20 @@ const Review = db.models.review;
 const Company = db.models.company;
 const Travelslots = db.models.travelslots;
 
+const reviewReadMany = tryCatch(async (req, res, next) => {
+  const { companyUUID, travelslotUUID } = req.body.review;
+  const [company, travelslot] = await Promise.all([
+    Company.findOne({ uuid: companyUUID }),
+    Travelslots.findOne({ uuid: travelslotUUID })
+  ]);
+  const reviews = await Review.find({
+    company: company,
+    travelslot: travelslot
+  });
+  // TODO: Filtering & response builder.
+  res.status(200).json(reviews);
+});
+
 const createReview = tryCatch(async (req, res, next) => {
   const {
     driver,
@@ -105,6 +119,11 @@ const subDocParamCheck = async (req, res, next) => {
 const updateLikes = tryCatch(async (req, res, next) => {
   const { subdoc } = req.params;
   const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for update operation." });
+  }
   const review = Review.findOne({ uuid: uuid });
   review[subdoc].likes += 1;
   await review.save();
@@ -114,6 +133,11 @@ const updateLikes = tryCatch(async (req, res, next) => {
 const updateDislikes = tryCatch(async (req, res, next) => {
   const { subdoc } = req.params;
   const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for update operation." });
+  }
   const review = Review.findOne({ uuid: uuid });
   review[subdoc].dislikes += 1;
   await review.save();
@@ -188,6 +212,36 @@ const updateReview = tryCatch(async (req, res, next) => {
   });
 });
 
+const updateSubDocument = tryCatch(async (req, res, next) => {
+  const { subdoc } = req.params;
+  const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for update operation." });
+  }
+  const updatedSubdoc = req.body.review[subdoc];
+  const review = await Review.findOne({ uuid: uuid });
+  review[subdoc].comment = updatedSubdoc.comment;
+  review[subdoc].rating = updatedSubdoc.rating;
+  await review.save();
+  res.status(200).send();
+});
+
+const deleteSubDocument = tryCatch(async (req, res, next) => {
+  const { subdoc } = req.params;
+  const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for delete operation." });
+  }
+  const review = await Review.findOne({ uuid: uuid });
+  delete review[subdoc];
+  await review.save();
+  res.status(200).send();
+});
+
 const deleteReview = tryCatch(async (req, res, next) => {
   const { uuid } = req.body.review;
   if (!uuid) {
@@ -200,12 +254,14 @@ const deleteReview = tryCatch(async (req, res, next) => {
 });
 
 export default {
+  readMany: reviewReadMany,
   create: createReview,
   update: {
     review: updateReview,
     likes: updateLikes,
-    dislikes: updateDislikes
+    dislikes: updateDislikes,
+    subdoc: updateSubDocument
   },
-  delete: deleteReview,
+  delete: { review: deleteReview, subdoc: deleteSubDocument },
   parameterChecker: subDocParamCheck
 };
