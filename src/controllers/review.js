@@ -2,6 +2,8 @@ import db from "../db";
 import tryCatch from "../utils/catcher";
 
 const Review = db.models.review;
+const Company = db.models.company;
+const Travelslots = db.models.travelslots;
 
 const createReview = tryCatch(async (req, res, next) => {
   const {
@@ -13,8 +15,8 @@ const createReview = tryCatch(async (req, res, next) => {
     pet,
     comfort,
     vehicle,
-    travelslot,
-    company,
+    travelslotUUID,
+    companyUUID,
     details,
     showuser
   } = req.body.review;
@@ -28,6 +30,12 @@ const createReview = tryCatch(async (req, res, next) => {
     comfort,
     vehicle
   };
+
+  const [company, travelslot] = await Promise.all([
+    Company.findOne({ uuid: companyUUID }),
+    Travelslots.findOne({ uuid: travelslotUUID })
+  ]);
+
   if (!travelslot && !company) {
     res.status(403).json({
       error: "A review must have both a travelslot and company attached to it."
