@@ -1,5 +1,6 @@
 import db from "../db";
 import tryCatch from "../utils/catcher";
+import reviewHelpers from "./helpers/review";
 
 const Review = db.models.review;
 const Company = db.models.company;
@@ -7,16 +8,31 @@ const Travelslots = db.models.travelslots;
 
 const reviewReadMany = tryCatch(async (req, res, next) => {
   const { companyUUID, travelslotUUID } = req.body.review;
-  const [company, travelslot] = await Promise.all([
-    Company.findOne({ uuid: companyUUID }),
-    Travelslots.findOne({ uuid: travelslotUUID })
-  ]);
-  const reviews = await Review.find({
-    company: company,
-    travelslot: travelslot
-  });
-  // TODO: Filtering & response builder.
-  res.status(200).json(reviews);
+  if (!companyUUID && !travelslotUUID) {
+    return res.status(403).json({
+      error:
+        "At least either company or travelslot is necessary to filter reviews."
+    });
+  }
+
+  const reviews = Review.find();
+
+  if (companyUUID) {
+    const company = await Company.findOne({ uuid: companyUUID });
+    reviews.where("company").equals(company);
+  }
+
+  if (travelslotUUID) {
+    const travelslot = await Travelslots.findOne({ uuid: travelslotUUID });
+    reviews.where("travelslot").equals(travelslot);
+  }
+
+  const finalReviews = await reviews.exec();
+  const arrayResponse = await reviewHelpers.responseBuilders.review.all(
+    finalReviews,
+    req.user
+  );
+  res.status(200).json(arrayResponse);
 });
 
 const createReview = tryCatch(async (req, res, next) => {
@@ -116,7 +132,7 @@ const subDocParamCheck = async (req, res, next) => {
   });
 };
 
-const updateLikes = tryCatch(async (req, res, next) => {
+const increaseLikes = tryCatch(async (req, res, next) => {
   const { subdoc } = req.params;
   const { uuid } = req.body.review;
   if (!uuid) {
@@ -124,13 +140,26 @@ const updateLikes = tryCatch(async (req, res, next) => {
       .status(403)
       .json({ error: "Review uuid is required for update operation." });
   }
+
   const review = Review.findOne({ uuid: uuid });
+
+  if (
+    review[subdoc].userLikes.includes(req.user._id) ||
+    review[subdoc].userDislikes.includes(req.user._id)
+  ) {
+    return res
+      .status(403)
+      .json({ error: "User already liked or disliked this review" });
+  }
+
   review[subdoc].likes += 1;
+  review[subdoc].userLikes.push(req.user._id);
+
   await review.save();
   res.status(200).send();
 });
 
-const updateDislikes = tryCatch(async (req, res, next) => {
+const increaseDislikes = tryCatch(async (req, res, next) => {
   const { subdoc } = req.params;
   const { uuid } = req.body.review;
   if (!uuid) {
@@ -138,8 +167,67 @@ const updateDislikes = tryCatch(async (req, res, next) => {
       .status(403)
       .json({ error: "Review uuid is required for update operation." });
   }
+
   const review = Review.findOne({ uuid: uuid });
+
+  if (
+    review[subdoc].userLikes.includes(req.user._id) ||
+    review[subdoc].userDislikes.includes(req.user._id)
+  ) {
+    return res
+      .status(403)
+      .json({ error: "User already liked or disliked this review" });
+  }
+
   review[subdoc].dislikes += 1;
+  review[subdoc].userDislikes.push(req.user._id);
+
+  await review.save();
+  res.status(200).send();
+});
+
+const decreaseLikes = tryCatch(async (req, res, next) => {
+  const { subdoc } = req.params;
+  const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for update operation." });
+  }
+
+  const review = Review.findOne({ uuid: uuid });
+  if (!review[subdoc].userLikes.includes(req.user._id)) {
+    return res
+      .status(403)
+      .json({ error: "User doesn't have a like for this subcomment." });
+  }
+
+  review[subdoc].likes -= 1;
+  review[subdoc].userLikes.pull(req.user._id);
+
+  await review.save();
+  res.status(200).send();
+});
+
+const decreaseDislikes = tryCatch(async (req, res, next) => {
+  const { subdoc } = req.params;
+  const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for update operation." });
+  }
+
+  const review = Review.findOne({ uuid: uuid });
+  if (!review[subdoc].userLikes.includes(req.user._id)) {
+    return res
+      .status(403)
+      .json({ error: "User doesn't have a dislike for this subcomment." });
+  }
+
+  review[subdoc].dislikes -= 1;
+  review[subdoc].userDislikes.pull(req.user._id);
+
   await review.save();
   res.status(200).send();
 });
@@ -258,8 +346,8 @@ export default {
   create: createReview,
   update: {
     review: updateReview,
-    likes: updateLikes,
-    dislikes: updateDislikes,
+    likes: { increase: increaseLikes, decrease: decreaseLikes },
+    dislikes: { increase: increaseDislikes, decrease: decreaseDislikes },
     subdoc: updateSubDocument
   },
   delete: { review: deleteReview, subdoc: deleteSubDocument },

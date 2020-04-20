@@ -24,7 +24,9 @@ const BaseCompanySchema = merge(
 const _AbstractCommentSchema = {
   comment: { type: String },
   likes: { type: Number, default: 0 },
-  dislikes: { type: Number, default: 0 }
+  dislikes: { type: Number, default: 0 },
+  userLikes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  userDislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
 };
 
 const _AbstractRatingSchema = { rating: { type: Number, min: 1, max: 5 } };
