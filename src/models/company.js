@@ -19,6 +19,13 @@ companySchema.pre("save", async function(next) {
   next();
 });
 
+companySchema.methods.updateTitle = async function() {
+  const newTitle = `Title: ${this.name}`;
+  this.title = newTitle;
+  await this.save();
+  return newTitle;
+};
+
 companySchema.methods.calculateReviewCounts = async function() {
   const reviews = await Review.find({ company: this });
   return reviews.length;
@@ -90,6 +97,13 @@ travelSlotsSchema.methods.calculateAverageRating = async function() {
   this.averageRating = averageRating;
   await this.save();
   return averageRating;
+};
+
+travelSlotsSchema.methods.updateTitle = async function() {
+  const newTitle = `${this.company.name}-${this.fromCity}-${this.toCity}-${this.fromHour}:${this.fromMinute}-${this.toHour}:${this.toMinute}`;
+  this.title = newTitle;
+  await this.save();
+  return newTitle;
 };
 
 travelSlotsSchema.pre("save", async function(next) {
