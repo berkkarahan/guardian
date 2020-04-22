@@ -132,6 +132,32 @@ const subDocParamCheck = async (req, res, next) => {
   });
 };
 
+const countLikes = tryCatch(async (req, res, next) => {
+  const { subdoc } = req.params;
+  const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for update operation." });
+  }
+
+  const review = Review.findOne({ uuid: uuid });
+  res.status(200).json({ count: review[subdoc].likes });
+});
+
+const countDislikes = tryCatch(async (req, res, next) => {
+  const { subdoc } = req.params;
+  const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for update operation." });
+  }
+
+  const review = Review.findOne({ uuid: uuid });
+  res.status(200).json({ count: review[subdoc].dislikes });
+});
+
 const increaseLikes = tryCatch(async (req, res, next) => {
   const { subdoc } = req.params;
   const { uuid } = req.body.review;
@@ -351,5 +377,6 @@ export default {
     subdoc: updateSubDocument
   },
   delete: { review: deleteReview, subdoc: deleteSubDocument },
+  count: { likes: countLikes, dislikes: countDislikes },
   parameterChecker: subDocParamCheck
 };

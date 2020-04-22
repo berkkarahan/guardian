@@ -39,6 +39,20 @@ reviewRouter.post(
 );
 
 reviewRouter.post(
+  "/:subdoc/dislike/count",
+  reviewController.parameterChecker,
+  jwtAuth.authVerified,
+  reviewController.count.dislikes
+);
+
+reviewRouter.post(
+  "/:subdoc/like/count",
+  reviewController.parameterChecker,
+  jwtAuth.authVerified,
+  reviewController.count.likes
+);
+
+reviewRouter.post(
   "/:subdoc/update",
   reviewController.parameterChecker,
   jwtAuth.authVerified,
