@@ -100,7 +100,8 @@ travelSlotsSchema.methods.calculateAverageRating = async function() {
 };
 
 travelSlotsSchema.methods.updateTitle = async function() {
-  const newTitle = `${this.company.name}-${this.fromCity}-${this.toCity}-${this.fromHour}:${this.fromMinute}-${this.toHour}:${this.toMinute}`;
+  const thisCompany = await Company.findById(this.company);
+  const newTitle = `${thisCompany.name}-${this.fromCity}-${this.toCity}-${this.fromHour}:${this.fromMinute}-${this.toHour}:${this.toMinute}`;
   this.title = newTitle;
   await this.save();
   return newTitle;
@@ -110,7 +111,9 @@ travelSlotsSchema.pre("save", async function(next) {
   if (!this.company) {
     throw new Error("Can't save a travelslot without a company.");
   }
-  this.title = `${this.company.name}-${this.fromCity}-${this.toCity}-${this.fromHour}:${this.fromMinute}-${this.toHour}:${this.toMinute}`;
+  const thisCompany = await Company.findById(this.company);
+  const newTitle = `${thisCompany.name}-${this.fromCity}-${this.toCity}-${this.fromHour}:${this.fromMinute}-${this.toHour}:${this.toMinute}`;
+  this.title = newTitle;
   next();
 });
 
