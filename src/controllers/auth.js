@@ -1,6 +1,10 @@
 import passport from "passport";
+import moment from "moment";
+import ip from "../utils/ip";
 import tryCatch from "../utils/catcher";
 import Token from "../models/tokens";
+
+const getIP = ip.fn;
 
 const loginUserv2 = tryCatch(async (req, res, next) => {
   // eslint-disable-next-line array-callback-return
@@ -60,7 +64,16 @@ const loginHandlerJwt = tryCatch(async (req, res, next) => {
       }
     });
   }
-  res.status(200).json({ jwt: jwt });
+
+  // update last_login_ip and timestamp_last_login
+  const now = moment();
+  user.last_login_ip = getIP(req);
+  user.timestamp_last_login = now;
+  await user.save();
+
+  res
+    .status(200)
+    .json({ jwt: jwt, user: { username: user.userName, email: user.email } });
 });
 
 // Different from previous, this is served over GET request.

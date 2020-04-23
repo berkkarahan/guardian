@@ -41,23 +41,45 @@ const buildReviewAllResponse = async (reviews, requestUser) => {
   const arrayResponse = await Promise.all(
     reviews.map(async rec => {
       const response = {};
+
+      // top-level response fields for review
       if (rec.showuser) {
         response.details = rec.details;
       }
       response.createdAt = rec.createdAt;
       response.canEdit = canUserEdit(rec, requestUser);
-      // eslint-disable-next-line no-restricted-syntax
-      for (const subDoc of subDocuments) {
-        const subDocResponse = {};
-        subDocResponse.content = rec[subDoc];
-        subDocResponse.canLike = canLike(rec[subDoc], rec.user, requestUser);
-        subDocResponse.canDislike = canDislike(
-          rec[subDoc],
-          rec.user,
-          requestUser
-        );
-        response[subDoc] = subDocResponse;
-      }
+
+      // Sub-document response
+      subDocuments.forEach(subDoc => {
+        // build subdoc response only if it exists at review
+        if (rec[subDoc]) {
+          const subDocResponse = {};
+          subDocResponse.content = rec[subDoc];
+          // canDislike for subDoc
+          if (rec[subDoc].userDislikes) {
+            subDocResponse.canDislike = canDislike(
+              rec[subDoc],
+              rec.user,
+              requestUser
+            );
+          } else {
+            subDocResponse.canDislike = true;
+          }
+          // canLike for subDoc
+          if (rec[subDoc].userLikes) {
+            subDocResponse.canLike = canLike(
+              rec[subDoc],
+              rec.user,
+              requestUser
+            );
+          } else {
+            subDocResponse.canLike = true;
+          }
+          response[subDoc] = subDocResponse;
+        }
+      });
+
+      // user fields for review response
       const reviewUser = await User.findById(rec.user);
       const userResponse = {};
       userResponse.userName = reviewUser.userName;

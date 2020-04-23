@@ -85,6 +85,8 @@ const createReview = tryCatch(async (req, res, next) => {
       }
       delete docObj.likes;
       delete docObj.dislikes;
+      delete docObj.userLikes;
+      delete docObj.userDislikes;
       review[docName] = docObj;
     }
   });
@@ -182,7 +184,14 @@ const increaseLikes = tryCatch(async (req, res, next) => {
   review[subdoc].userLikes.push(req.user._id);
 
   await review.save();
-  res.status(200).send();
+  res.status(200).json({
+    data: {
+      reviewUUID: review.uuid,
+      user: req.user,
+      canLike: false,
+      likes: review.likes
+    }
+  });
 });
 
 const increaseDislikes = tryCatch(async (req, res, next) => {
@@ -209,7 +218,14 @@ const increaseDislikes = tryCatch(async (req, res, next) => {
   review[subdoc].userDislikes.push(req.user._id);
 
   await review.save();
-  res.status(200).send();
+  res.status(200).json({
+    data: {
+      reviewUUID: review.uuid,
+      user: req.user,
+      canDislike: false,
+      dislikes: review.dislikes
+    }
+  });
 });
 
 const decreaseLikes = tryCatch(async (req, res, next) => {
@@ -232,7 +248,14 @@ const decreaseLikes = tryCatch(async (req, res, next) => {
   review[subdoc].userLikes.pull(req.user._id);
 
   await review.save();
-  res.status(200).send();
+  res.status(200).json({
+    data: {
+      reviewUUID: review.uuid,
+      user: req.user,
+      canLike: true,
+      likes: review.likes
+    }
+  });
 });
 
 const decreaseDislikes = tryCatch(async (req, res, next) => {
@@ -255,7 +278,14 @@ const decreaseDislikes = tryCatch(async (req, res, next) => {
   review[subdoc].userDislikes.pull(req.user._id);
 
   await review.save();
-  res.status(200).send();
+  res.status(200).json({
+    data: {
+      reviewUUID: review.uuid,
+      user: req.user,
+      canDislike: true,
+      dislikes: review.dislikes
+    }
+  });
 });
 
 const updateReview = tryCatch(async (req, res, next) => {
@@ -304,6 +334,8 @@ const updateReview = tryCatch(async (req, res, next) => {
       }
       delete docObj.likes;
       delete docObj.dislikes;
+      delete docObj.userLikes;
+      delete docObj.userDislikes;
       review[docName] = docObj;
     }
   });
