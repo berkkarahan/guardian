@@ -104,7 +104,6 @@ const createReview = tryCatch(async (req, res, next) => {
   }
 
   await review.save();
-  await review.updateAverageRatings();
   res.status(201).json({
     data: {
       reviewUUID: review.uuid

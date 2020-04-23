@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import mongoose from "mongoose";
 import { merge } from "lodash";
 import abstract from "./abstract";
@@ -73,22 +74,12 @@ reviewSchema.pre("save", async function(next) {
 });
 
 // Update company average rating each time a review is made
-reviewSchema.pre("save", async function(next) {
+reviewSchema.post("save", async function() {
   const reviewCompany = await Company.findById(this.company);
   const reviewTravelslot = await Travelslot.findById(this.travelslot);
   await reviewCompany.calculateAverageRating();
   await reviewTravelslot.calculateAverageRating();
-  next();
 });
-
-reviewSchema.methods.updateAverageRatings = async function() {
-  const travelslot = await Travelslot.findById(this.travelslot).populate(
-    "company"
-  );
-  const { company } = travelslot;
-  await travelslot.calculateAverageRating();
-  await company.calculateAverageRating();
-};
 
 const Review = mongoose.model("Review", reviewSchema);
 

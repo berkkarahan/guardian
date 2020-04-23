@@ -1,3 +1,6 @@
+/* eslint-disable import/no-cycle */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
 import mongoose from "mongoose";
 import { merge } from "lodash";
 import abstract from "./abstract";
@@ -33,16 +36,19 @@ companySchema.methods.calculateReviewCounts = async function() {
 
 companySchema.methods.calculateAverageRating = async function() {
   const reviews = await Review.find({ company: this._id });
-  const sumReviewAverages = reviews.reduce(
-    (r1, r2) => r1.averageRating + r2.averageRating,
-    0
-  );
+
+  let sumReviewAverages = 0;
+  for (const rec in reviews) {
+    sumReviewAverages += reviews[rec].averageRating;
+  }
+
   let averageRating;
   if (sumReviewAverages > 0) {
     averageRating = sumReviewAverages / reviews.length;
   } else {
     averageRating = 0;
   }
+
   this.averageRating = averageRating;
   await this.save();
   return averageRating;
@@ -84,10 +90,12 @@ travelSlotsSchema.methods.calculateReviewCounts = async function() {
 
 travelSlotsSchema.methods.calculateAverageRating = async function() {
   const reviews = await Review.find({ travelslot: this._id });
-  const sumReviewAverages = reviews.reduce(
-    (r1, r2) => r1.averageRating + r2.averageRating,
-    0
-  );
+
+  let sumReviewAverages = 0;
+  for (const rec in reviews) {
+    sumReviewAverages += reviews[rec].averageRating;
+  }
+
   let averageRating;
   if (sumReviewAverages > 0) {
     averageRating = sumReviewAverages / reviews.length;
