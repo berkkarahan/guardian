@@ -33,15 +33,15 @@ const connectDB = function() {
   if (isTest) {
     // mongoose.connect(config.mongo_test);
     // connectInMemory();
-    return mongoose.connect(config.mongo_test);
+    return mongoose.connect(config.mongo_test, { autoIndex: true });
   }
 
   if (isProduction) {
-    return mongoose.connect(config.mongo_prod);
+    return mongoose.connect(config.mongo_prod, { autoIndex: true });
   }
 
   if (isDevelopment) {
-    const conn = mongoose.connect(config.mongo_dev);
+    const conn = mongoose.connect(config.mongo_dev, { autoIndex: true });
     mongoose.set("debug", true);
     return conn;
   }
