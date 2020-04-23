@@ -11,6 +11,14 @@ import company from "./models/company";
 const Company = company.company;
 const Travelslots = company.travelslots;
 
+(async function() {
+  await User.syncIndexes();
+  await Token.syncIndexes();
+  await Review.syncIndexes();
+  await Company.syncIndexes();
+  await Travelslots.syncIndexes();
+})();
+
 const isProduction = config.node_env === "production";
 const isTest = config.node_env === "test";
 const isDevelopment = config.node_env === "development";
