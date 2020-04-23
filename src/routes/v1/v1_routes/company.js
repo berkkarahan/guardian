@@ -42,6 +42,7 @@ companyRouter.post(
 );
 
 // public routes
+companyRouter.get("/top", company.top10.company);
 companyRouter.get("/:resourceUUID", company.getByUUID.company);
 companyRouter.post("/all", company.readMany.company);
 
@@ -79,6 +80,7 @@ travelslotsRouter.post(
 );
 
 // public travelsot routes
+travelslotsRouter.get("/top/:companyUUID", company.top10.travelslot);
 travelslotsRouter.get("/:resourceUUID", company.getByUUID.travelslot);
 travelslotsRouter.post("/all", company.readMany.travelslot);
 

@@ -123,10 +123,39 @@ const companyUpdate = tryCatch(async (req, res, next) => {
   await updateSetVerifiedFalse(Company, req, res, next);
 });
 
+const top10Companies = tryCatch(async (req, res, next) => {
+  const top10 = await Company.find(
+    {},
+    {
+      limit: 10,
+      sort: {
+        averageRating: -1
+      }
+    }
+  );
+  res.status(200).json(top10);
+});
+
+const top10TravelslotsbyCompany = tryCatch(async (req, res, next) => {
+  const { companyUUID } = req.params;
+  const company = await Company.findOne({ uuid: companyUUID });
+  const top10 = await Travelslots.find(
+    { company: company._id },
+    {
+      limit: 10,
+      sort: {
+        averageRating: -1
+      }
+    }
+  );
+  res.status(200).json(top10);
+});
+
 export default {
   getByUUID: { travelslot: getTravelslot, company: getCompany },
   readMany: { travelslot: travelslotsReadMany, company: companyReadMany },
   verify: { travelslot: verifyTravelslot, company: verifyCompany },
   create: { travelslot: travelslotsCreate, company: companyCreate },
-  update: { travelslot: travelslotsUpdate, company: companyUpdate }
+  update: { travelslot: travelslotsUpdate, company: companyUpdate },
+  top10: { company: top10Companies, travelslot: top10TravelslotsbyCompany }
 };

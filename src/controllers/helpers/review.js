@@ -41,6 +41,9 @@ const buildReviewAllResponse = async (reviews, requestUser) => {
   const arrayResponse = await Promise.all(
     reviews.map(async rec => {
       const response = {};
+      if (rec.showuser) {
+        response.details = rec.details;
+      }
       response.createdAt = rec.createdAt;
       response.canEdit = canUserEdit(rec, requestUser);
       // eslint-disable-next-line no-restricted-syntax
