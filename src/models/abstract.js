@@ -33,7 +33,6 @@ const _AbstractRatingSchema = { rating: { type: Number, min: 1, max: 5 } };
 
 const BaseRatingSchema = merge(
   {},
-  BaseModelSchema,
   _AbstractCommentSchema,
   _AbstractRatingSchema
 );

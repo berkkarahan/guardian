@@ -1,4 +1,3 @@
-import { uuid, isUuid } from "uuidv4";
 import db from "../db";
 import tryCatch from "../utils/catcher";
 import reviewHelpers from "./helpers/review";
@@ -86,8 +85,6 @@ const createReview = tryCatch(async (req, res, next) => {
       }
       delete docObj.likes;
       delete docObj.dislikes;
-      // create uuid
-      docObj.uuid = uuid();
       review[docName] = docObj;
     }
   });
