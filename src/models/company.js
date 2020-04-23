@@ -32,7 +32,7 @@ companySchema.methods.calculateReviewCounts = async function() {
 };
 
 companySchema.methods.calculateAverageRating = async function() {
-  const reviews = await Review.find({ company: this });
+  const reviews = await Review.find({ company: this._id });
   const sumReviewAverages = reviews.reduce(
     (r1, r2) => r1.averageRating + r2.averageRating,
     0
@@ -83,7 +83,7 @@ travelSlotsSchema.methods.calculateReviewCounts = async function() {
 };
 
 travelSlotsSchema.methods.calculateAverageRating = async function() {
-  const reviews = await Review.find({ travelslot: this });
+  const reviews = await Review.find({ travelslot: this._id });
   const sumReviewAverages = reviews.reduce(
     (r1, r2) => r1.averageRating + r2.averageRating,
     0

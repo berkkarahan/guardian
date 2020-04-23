@@ -81,6 +81,15 @@ reviewSchema.pre("save", async function(next) {
   next();
 });
 
+reviewSchema.methods.updateAverageRatings = async function() {
+  const travelslot = await Travelslot.findById(this.travelslot).populate(
+    "company"
+  );
+  const { company } = travelslot;
+  await travelslot.calculateAverageRating();
+  await company.calculateAverageRating();
+};
+
 const Review = mongoose.model("Review", reviewSchema);
 
 export default Review;
