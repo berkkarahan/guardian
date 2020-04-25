@@ -391,9 +391,9 @@ const deleteSubDocument = tryCatch(async (req, res, next) => {
       .json({ error: "Review uuid is required for delete operation." });
   }
   const review = await Review.findOne({ uuid: uuid });
-  delete review[subdoc];
+  await review[subdoc].remove();
   await review.save();
-  res.status(200).send();
+  res.status(200).json({ review: review });
 });
 
 const deleteReview = tryCatch(async (req, res, next) => {
