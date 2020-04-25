@@ -360,16 +360,23 @@ const updateReview = tryCatch(async (req, res, next) => {
 
 const updateSubDocument = tryCatch(async (req, res, next) => {
   const { subdoc } = req.params;
-  const { uuid } = req.body.review;
+  const { uuid, comment, rating } = req.body.review;
   if (!uuid) {
     return res
       .status(403)
       .json({ error: "Review uuid is required for update operation." });
   }
-  const updatedSubdoc = req.body.review[subdoc];
+
   const review = await Review.findOne({ uuid: uuid });
-  review[subdoc].comment = updatedSubdoc.comment;
-  review[subdoc].rating = updatedSubdoc.rating;
+
+  if (comment) {
+    review[subdoc].comment = comment;
+  }
+
+  if (rating) {
+    review[subdoc].rating = rating;
+  }
+
   await review.save();
   res.status(200).send();
 });

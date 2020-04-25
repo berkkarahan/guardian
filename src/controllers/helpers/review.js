@@ -43,11 +43,15 @@ const buildReviewAllResponse = async (reviews, requestUser) => {
       const response = {};
 
       // top-level response fields for review
+      const reviewResponse = {};
+      reviewResponse.uuid = rec.uuid;
       if (rec.showuser) {
-        response.details = rec.details;
+        reviewResponse.details = rec.details;
       }
-      response.createdAt = rec.createdAt;
-      response.canEdit = canUserEdit(rec, requestUser);
+      reviewResponse.createdAt = rec.createdAt;
+      reviewResponse.canEdit = canUserEdit(rec, requestUser);
+
+      response.review = reviewResponse;
 
       // Sub-document response
       subDocuments.forEach(subDoc => {
