@@ -393,6 +393,7 @@ const deleteSubDocument = tryCatch(async (req, res, next) => {
   const review = await Review.findOne({ uuid: uuid });
   await review[subdoc].remove();
   await review.save();
+  // remove review from response later
   res.status(200).json({ review: review });
 });
 
