@@ -72,4 +72,12 @@ reviewRouter.post(
   reviewController.delete.review
 );
 
+reviewRouter.get(
+  "/:subdoc/ping",
+  reviewController.parameterChecker,
+  (req, res, next) => {
+    res.status(200).json({ message: "success" });
+  }
+);
+
 export default reviewRouter;

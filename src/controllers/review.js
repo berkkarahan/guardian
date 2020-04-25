@@ -126,10 +126,11 @@ const subDocParamCheck = async (req, res, next) => {
   ];
   const { subdoc } = req.params;
   if (subDocuments.includes(subdoc)) {
-    next();
+    return next();
   }
   res.status(403).json({
     message: "/api/review/:subdoc/... subdoc parameter is entered wrong.",
+    enteredSubDoc: subdoc,
     validSubDocuments: subDocuments
   });
 };
