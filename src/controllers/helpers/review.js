@@ -45,6 +45,7 @@ const buildReviewAllResponse = async (reviews, requestUser) => {
       // top-level response fields for review
       const reviewResponse = {};
       reviewResponse.uuid = rec.uuid;
+      reviewResponse.averageRating = rec.averageRating;
       if (rec.showuser) {
         reviewResponse.details = rec.details;
       }

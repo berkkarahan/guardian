@@ -8,4 +8,13 @@ const userReviewCount = tryCatch(async (req, res, next) => {
   res.status(200).json({ count: userReviews.length });
 });
 
-export default { count: userReviewCount };
+const reviewAverageRating = tryCatch(async (req, res, next) => {
+  const { uuid } = req.body;
+  const company = await Review.findOne({ uuid: uuid });
+  res.status(200).json({ averageRating: company.averageRating });
+});
+
+export default {
+  count: userReviewCount,
+  average: reviewAverageRating
+};

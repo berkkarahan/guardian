@@ -82,7 +82,7 @@ const createUser = tryCatch(async (req, res, next) => {
   const verifUrl = `${baseUrl}/api/auth/verification?uuid=${verifToken.token_uuid}`;
   await mailer.verification.test(verifUrl);
   const userJson = await user.userToJSON();
-  res.status(201).json(userJson);
+  res.status(201).json({ user: userJson, token: verifToken.token_uuid });
 });
 
 const updateUser = tryCatch(async (req, res, next) => {

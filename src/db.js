@@ -17,7 +17,9 @@ const Travelslots = company.travelslots;
   await Review.syncIndexes();
   await Company.syncIndexes();
   await Travelslots.syncIndexes();
-})();
+})().catch(e => {
+  console.log(e);
+});
 
 const isProduction = config.node_env === "production";
 const isTest = config.node_env === "test";
@@ -41,15 +43,15 @@ const connectDB = function() {
   if (isTest) {
     // mongoose.connect(config.mongo_test);
     // connectInMemory();
-    return mongoose.connect(config.mongo_test, { autoIndex: true });
+    return mongoose.connect(config.mongo_test);
   }
 
   if (isProduction) {
-    return mongoose.connect(config.mongo_prod, { autoIndex: true });
+    return mongoose.connect(config.mongo_prod);
   }
 
   if (isDevelopment) {
-    const conn = mongoose.connect(config.mongo_dev, { autoIndex: true });
+    const conn = mongoose.connect(config.mongo_dev);
     mongoose.set("debug", true);
     return conn;
   }
