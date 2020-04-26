@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 import db from "../db";
 import tryCatch from "../utils/catcher";
 import reviewHelpers from "./helpers/review";
@@ -67,20 +68,20 @@ const createReview = tryCatch(async (req, res, next) => {
   ]);
 
   if (!travelslot && !company) {
-    res.status(403).json({
+    return res.status(403).json({
       error: "A review must have both a travelslot and company attached to it."
     });
   }
   const review = new Review();
-  Object.entries(subDocuments).forEach(async pairs => {
-    const [docName, docObj] = pairs;
-    // Minimal payload for sub-review should consist of;
-    // comment and rating
+
+  for (const [docName, docObj] of Object.entries(subDocuments)) {
     if (docObj) {
+      // Minimal payload for sub-review should consist of;
+      // comment and rating
       if (!docObj.comment && !docObj.rating) {
         return res.status(403).json({
           error:
-            "Minimal payload for a subreview must include comment and rating."
+            "Minimal payload for a subreview must include comment and rating"
         });
       }
       delete docObj.likes;
@@ -89,7 +90,8 @@ const createReview = tryCatch(async (req, res, next) => {
       delete docObj.userDislikes;
       review[docName] = docObj;
     }
-  });
+  }
+
   // set model ref fields
   review.user = req.user;
   review.travelslot = travelslot;
@@ -322,11 +324,10 @@ const updateReview = tryCatch(async (req, res, next) => {
     vehicle
   };
 
-  Object.entries(subDocuments).forEach(async pairs => {
-    const [docName, docObj] = pairs;
-    // Minimal payload for sub-review should consist of;
-    // comment and rating
+  for (const [docName, docObj] of Object.entries(subDocuments)) {
     if (docObj) {
+      // Minimal payload for sub-review should consist of;
+      // comment and rating
       if (!docObj.comment && !docObj.rating) {
         return res.status(403).json({
           error:
@@ -339,7 +340,7 @@ const updateReview = tryCatch(async (req, res, next) => {
       delete docObj.userDislikes;
       review[docName] = docObj;
     }
-  });
+  }
 
   if (showuser) {
     review.showuser = true;
