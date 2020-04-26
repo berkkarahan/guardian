@@ -117,7 +117,8 @@ const jwtAuth = {
   middleware: tokenValidityChain,
   authRequired: requiredChain,
   authOptional: optionalChain,
-  authVerified: authenticatedAndVerified
+  authVerified: authenticatedAndVerified,
+  singleMiddlewares: { userVerified: verified }
 };
 
 export default jwtAuth;

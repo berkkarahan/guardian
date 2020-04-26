@@ -11,6 +11,7 @@ authRouter.post("/preload", usersController.preload);
 authRouter.post(
   "/login",
   passport.authenticate("local", { session: false }),
+  jwtAuth.singleMiddlewares.userVerified,
   authController.loginHandler.jwt
 );
 authRouter.get("/logout", jwtAuth.authVerified, authController.logout.jwt);
