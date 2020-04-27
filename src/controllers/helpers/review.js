@@ -14,12 +14,14 @@ const subDocuments = [
 const User = db.models.user;
 
 const canUserEdit = (review, user) => {
-  // for public requests
+  // This is an auth optional route so if we don't get req.user
+  // default response for canUserEdit is false.
   if (!user) {
     return false;
   }
 
-  if (review.user === user._id) {
+  // MongoDB._id comparison in string.
+  if (String(review.user) === String(user._id)) {
     return true;
   }
   return false;

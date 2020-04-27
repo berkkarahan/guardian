@@ -5,7 +5,7 @@ import jwtAuth from "../../../config/jwtAuth";
 const reviewRouter = express.Router();
 
 // Public route
-reviewRouter.post("/all", reviewController.readMany);
+reviewRouter.post("/all", jwtAuth.authOptional, reviewController.readMany);
 
 // Auth required routes
 reviewRouter.post("/create", jwtAuth.authVerified, reviewController.create);
@@ -70,14 +70,6 @@ reviewRouter.post(
   "/delete",
   jwtAuth.authVerified,
   reviewController.delete.review
-);
-
-reviewRouter.get(
-  "/:subdoc/ping",
-  reviewController.parameterChecker,
-  (req, res, next) => {
-    res.status(200).json({ message: "success" });
-  }
 );
 
 export default reviewRouter;
