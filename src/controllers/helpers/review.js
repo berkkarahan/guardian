@@ -14,7 +14,12 @@ const subDocuments = [
 const User = db.models.user;
 
 const canUserEdit = (review, user) => {
-  if (review.user === user) {
+  // for public requests
+  if (!user) {
+    return false;
+  }
+
+  if (review.user === user._id) {
     return true;
   }
   return false;
