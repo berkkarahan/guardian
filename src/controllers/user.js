@@ -80,7 +80,7 @@ const createUser = tryCatch(async (req, res, next) => {
   // change this to production version later on.
   const baseUrl = `${req.protocol}://${req.get("host")}`;
   const verifUrl = `${baseUrl}/api/auth/verification?uuid=${verifToken.token_uuid}`;
-  await mailer.verification.test(verifUrl);
+  await mailer.verification.prod(verifUrl, user.email);
   const userJson = await user.userToJSON();
   res.status(201).json({ user: userJson, token: verifToken.token_uuid });
 });

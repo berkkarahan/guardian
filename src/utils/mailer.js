@@ -18,7 +18,7 @@ const sendVerification = async (verifUrl, toMail) => {
   const mailInfo = {
     from: config.sender_email,
     to: toMail,
-    cc: ["berkkarahan00@gmail.com", "ygzaydns@gmail.com"],
+    cc: config.sender_email,
     subject: `Rate'N'Ride Verification Email: ${toMail}`,
     text: verifUrl
   };
