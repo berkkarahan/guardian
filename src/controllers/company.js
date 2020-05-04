@@ -1,10 +1,10 @@
 import db from "../db";
-import paginateQuery from "../utils/filters/utils";
 import companyFilters from "../utils/filters/company";
 import travelslotFilters from "../utils/filters/travelslot";
 import travelslotHelpers from "./helpers/travelslots";
 import companyHelpers from "./helpers/company";
 import tryCatch from "../utils/catcher";
+import paginate_v2 from "../utils/filters/pagination";
 
 const Company = db.models.company;
 const Travelslots = db.models.travelslots;
@@ -41,37 +41,52 @@ const verifyTravelslot = tryCatch(async (req, res, next) => {
 
 const companyReadMany = tryCatch(async (req, res, next) => {
   // return all if no filters given
-  if (!req.body.filters) {
-    const records = await Company.find();
+  // req.body.filters is a must even if empty now.
+  if (!req.body.filters.query) {
+    const pageNumber = req.body.filters.pageNumber || 1;
+    const paginated = await paginate_v2.paginate(Company, {}, pageNumber);
+    const modifiedResponse = paginate_v2.setHeaders(paginated, res);
     const finalResponse = await companyHelpers.responseBuilders.company.all(
-      records
+      paginated.response
     );
-    return res.status(200).send(finalResponse);
+    return modifiedResponse.status(200).send(finalResponse);
   }
-  const { query, pagination } = req.body.filters;
+  const { query, pageNumber } = req.body.filters;
+  const adjPageNumber = pageNumber || 1;
   const { name } = query;
   if (!name) {
     return res
       .status(404)
       .json({ error: "Name parameter must exist if filtering companies." });
   }
-  const queryObject = companyFilters.query(Company.find(), name);
-  const paginatedQuery = paginateQuery(queryObject, pagination.pageNumber);
-  const finalResponse = await companyHelpers.responseBuilders.company.all(
-    await paginatedQuery.exec()
+
+  const queryJson = companyFilters.queryJson(name);
+
+  const paginated = await paginate_v2.paginate(
+    Company,
+    queryJson,
+    adjPageNumber
   );
-  res.status(200).send(finalResponse);
+
+  const finalResponse = await companyHelpers.responseBuilders.company.all(
+    paginated.response
+  );
+
+  const modifiedResponse = paginate_v2.setHeaders(paginated, res);
+  modifiedResponse.status(200).send(finalResponse);
 });
 
 const travelslotsReadMany = tryCatch(async (req, res, next) => {
-  if (!req.body.filters) {
+  // req.body.filters is a must even if empty now.
+  if (!req.body.filters.query) {
     const records = await Travelslots.find();
     const jsonResponse = await travelslotHelpers.responseBuilders.travelslots.all(
       records
     );
     return res.status(200).json(jsonResponse);
   }
-  const { query, pagination } = req.body.filters;
+  const { query, pageNumber } = req.body.filters;
+  const adjPageNumber = pageNumber || 1;
   const { fromHour, fromCity } = query;
   if (!fromHour && !fromCity) {
     return res.status(404).json({
@@ -80,15 +95,22 @@ const travelslotsReadMany = tryCatch(async (req, res, next) => {
     });
   }
 
-  const queryObject = travelslotFilters.query(
-    Travelslots.find(),
+  const queryJson = travelslotFilters.queryJson(
     travelslotFilters.parse(req.body.filters)
   );
-  const paginatedQuery = paginateQuery(queryObject, pagination.pageNumber);
-  const jsonResponse = await travelslotHelpers.responseBuilders.travelslots.all(
-    await paginatedQuery.exec()
+
+  const paginated = await paginate_v2.paginate(
+    Travelslots,
+    queryJson,
+    adjPageNumber
   );
-  res.status(200).json(jsonResponse);
+
+  const jsonResponse = await travelslotHelpers.responseBuilders.travelslots.all(
+    paginated.response
+  );
+
+  const modifiedResponse = paginate_v2.setHeaders(paginated, res);
+  modifiedResponse.status(200).json(jsonResponse);
 });
 
 const customCreate = async (Collection, req, res, next) => {

@@ -15,4 +15,22 @@ const buildMongooseQuery = (queryObject, reviewFilterBody) => {
   return queryObject;
 };
 
+const queryJsonBuilder = reviewFilterBody => {
+  const query = {};
+  const { company, travelslot } = reviewFilterBody;
+  if (!company && !travelslot) {
+    throw new Error(
+      "At least either company or travelslot is necessary to filter reviews."
+    );
+  }
+  if (company) {
+    query.company = company;
+  }
+
+  if (travelslot) {
+    query.travelslot = travelslot;
+  }
+  return query;
+};
+
 export default { query: buildMongooseQuery };

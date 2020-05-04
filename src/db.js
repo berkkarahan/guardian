@@ -43,14 +43,17 @@ const connectDB = function() {
   if (isTest) {
     // mongoose.connect(config.mongo_test);
     // connectInMemory();
+    console.log(`Connecting to: ${config.mongo_test}`);
     return mongoose.connect(config.mongo_test);
   }
 
   if (isProduction) {
+    console.log(`Connecting to: ${config.mongo_prod}`);
     return mongoose.connect(config.mongo_prod);
   }
 
   if (isDevelopment) {
+    console.log(`Connecting to: ${config.mongo_dev}`);
     const conn = mongoose.connect(config.mongo_dev);
     mongoose.set("debug", true);
     return conn;
@@ -68,14 +71,17 @@ const connectUri = function(uri) {
 
 const asyncConnectDB = async function() {
   if (isTest) {
+    console.log(`Connecting to: ${config.mongo_test}`);
     return await mongoose.connect(config.mongo_test);
   }
 
   if (isProduction) {
+    console.log(`Connecting to: ${config.mongo_prod}`);
     return await mongoose.connect(config.mongo_prod);
   }
 
   if (isDevelopment) {
+    console.log(`Connecting to: ${config.mongo_dev}`);
     const devConn = await mongoose.connect(config.mongo_dev);
     mongoose.set("debug", true);
     return devConn;

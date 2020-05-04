@@ -78,7 +78,34 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
   return queryObject;
 };
 
+const queryJsonBuilder = parsedQuery => {
+  console.log(parsedQuery);
+  const query = { $and: [] };
+  if (parsedQuery.to > parsedQuery.from) {
+    query.$and.push({ fromHour: { $gte: ["$fromHour", parsedQuery.from] } });
+    query.$and.push({ fromHour: { $lte: ["$fromHour", parsedQuery.to] } });
+  } else {
+    query.$and.push({ fromHour: { $gte: ["$fromHour", parsedQuery.to] } });
+    query.$and.push({ fromHour: { $lte: ["$fromHour", parsedQuery.from] } });
+  }
+
+  if (parsedQuery.fromCity) {
+    query.$and.push({ fromCity: parsedQuery.fromCity.toLowerCase() });
+  }
+  if (parsedQuery.toCity) {
+    query.$and.push({ toCity: parsedQuery.toCity.toLowerCase() });
+  }
+  if (typeof parsedQuery.isPetAllowed === "boolean") {
+    query.$and.push({ petAllowed: parsedQuery.isPetAllowed });
+  }
+  if (typeof parsedQuery.is3Seater === "boolean") {
+    query.$and.push({ luxuryCategory: { $in: ["3seater", "lux"] } });
+  }
+  return query;
+};
+
 export default {
   parse: parseFilters,
-  query: buildMongooseQuery
+  query: buildMongooseQuery,
+  queryJson: queryJsonBuilder
 };

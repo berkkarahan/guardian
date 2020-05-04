@@ -2,6 +2,7 @@
 import db from "../db";
 import tryCatch from "../utils/catcher";
 import reviewHelpers from "./helpers/review";
+import paginate_v2 from "../utils/filters/pagination";
 
 const Review = db.models.review;
 const Company = db.models.company;
@@ -9,6 +10,7 @@ const Travelslots = db.models.travelslots;
 
 const reviewReadMany = tryCatch(async (req, res, next) => {
   const { companyUUID, travelslotUUID } = req.body.review;
+  const { pageNumber } = req.body.review;
   if (!companyUUID && !travelslotUUID) {
     return res.status(403).json({
       error:
@@ -16,24 +18,25 @@ const reviewReadMany = tryCatch(async (req, res, next) => {
     });
   }
 
-  const reviews = Review.find();
-
+  const adjPageNumber = pageNumber || 1;
+  const query = { $and: [] };
   if (companyUUID) {
     const company = await Company.findOne({ uuid: companyUUID });
-    reviews.where("company").equals(company);
+    query.$and.push({ company: company._id });
   }
 
   if (travelslotUUID) {
     const travelslot = await Travelslots.findOne({ uuid: travelslotUUID });
-    reviews.where("travelslot").equals(travelslot);
+    query.$and.push({ company: travelslot._id });
   }
 
-  const finalReviews = await reviews.exec();
+  const paginated = await paginate_v2.paginate(Review, query, adjPageNumber, 5);
   const arrayResponse = await reviewHelpers.responseBuilders.review.all(
-    finalReviews,
+    paginated.response,
     req.user
   );
-  res.status(200).json(arrayResponse);
+  const modifiedResponse = paginate_v2.setHeaders(paginated, res);
+  modifiedResponse.status(200).json(arrayResponse);
 });
 
 const createReview = tryCatch(async (req, res, next) => {

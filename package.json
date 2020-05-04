@@ -8,13 +8,13 @@
   "main": "src/server.js",
   "scripts": {
     "devold": "npm run build && cross-env NODE_ENV=test nodemon --exec node dist/server.js",
-    "dev": "cross-env NODE_ENV=test nodemon --exec babel-node src/server.js",
+    "dev": "cross-env NODE_ENV=development nodemon --exec babel-node src/server.js",
     "build": "babel src --out-dir dist",
     "serve": "node ./dist/server.js",
     "prestart": "npm run build",
     "oldstart": "pm2-runtime start ecosystem.config.js --env production",
     "start": "node ./dist/pm2.js",
-    "pretest": "cross-env NODE_ENV=test eslint --ignore-path .gitignore .",
+    "oldpretest": "cross-env NODE_ENV=test eslint --ignore-path .gitignore .",
     "test": "jest --detectOpenHandles --runInBand --forceExit --testTimeout=10000",
     "eslint": "./node_modules/.bin/eslint --ignore-path .gitignore  --ext js --fix . .config",
     "deploy": "npm run build && npm run serve"

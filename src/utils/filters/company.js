@@ -6,6 +6,11 @@ const buildMongooseQuery = (queryObject, nameSearchStr) => {
   return queryObject;
 };
 
+const queryJsonBuilder = nameSearchStr => {
+  return { name: nameSearchStr.toLowerCase() };
+};
+
 export default {
-  query: buildMongooseQuery
+  query: buildMongooseQuery,
+  queryJson: queryJsonBuilder
 };
