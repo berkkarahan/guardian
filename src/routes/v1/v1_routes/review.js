@@ -11,6 +11,20 @@ reviewRouter.post("/all", jwtAuth.authOptional, reviewController.readMany);
 reviewRouter.post("/create", jwtAuth.authVerified, reviewController.create);
 
 reviewRouter.post(
+  "/:subdoc/like",
+  reviewController.parameterChecker,
+  jwtAuth.authVerified,
+  reviewController.update.like
+);
+
+reviewRouter.post(
+  "/:subdoc/dislike",
+  reviewController.parameterChecker,
+  jwtAuth.authVerified,
+  reviewController.update.dislike
+);
+
+reviewRouter.post(
   "/:subdoc/like/increase",
   reviewController.parameterChecker,
   jwtAuth.authVerified,

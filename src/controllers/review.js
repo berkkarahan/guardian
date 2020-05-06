@@ -163,6 +163,64 @@ const countDislikes = tryCatch(async (req, res, next) => {
   res.status(200).json({ count: review[subdoc].dislikes });
 });
 
+const likeSubReview = tryCatch(async (req, res, next) => {
+  const { subdoc } = req.params;
+  const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for update operation." });
+  }
+
+  const review = await Review.findOne({ uuid: uuid });
+
+  // if user already liked, return
+  if (review[subdoc].userLikes.includes(req.user._id)) {
+    return res.status(304).json({ message: "User already liked this post." });
+  }
+
+  // check if user previously disliked
+  if (review[subdoc].userDislikes.includes(req.user._id)) {
+    review[subdoc].dislikes -= 1;
+    review[subdoc].userDislikes.pull(req.user._id);
+  }
+
+  review[subdoc].likes += 1;
+  review[subdoc].userLikes.push(req.user._id);
+  await review.save();
+  res.status(200).json({ review: { uuid: uuid, subDocument: review[subdoc] } });
+});
+
+const dislikeSubReview = tryCatch(async (req, res, next) => {
+  const { subdoc } = req.params;
+  const { uuid } = req.body.review;
+  if (!uuid) {
+    return res
+      .status(403)
+      .json({ error: "Review uuid is required for update operation." });
+  }
+
+  const review = await Review.findOne({ uuid: uuid });
+
+  // if user already disliked, return
+  if (review[subdoc].userLikes.includes(req.user._id)) {
+    return res
+      .status(304)
+      .json({ message: "User already disliked this post." });
+  }
+
+  // check if user previously liked
+  if (review[subdoc].userDislikes.includes(req.user._id)) {
+    review[subdoc].likes -= 1;
+    review[subdoc].userLikes.pull(req.user._id);
+  }
+
+  review[subdoc].dislikes += 1;
+  review[subdoc].userDislikes.push(req.user._id);
+  await review.save();
+  res.status(200).json({ review: { uuid: uuid, subDocument: review[subdoc] } });
+});
+
 const increaseLikes = tryCatch(async (req, res, next) => {
   const { subdoc } = req.params;
   const { uuid } = req.body.review;
@@ -172,7 +230,7 @@ const increaseLikes = tryCatch(async (req, res, next) => {
       .json({ error: "Review uuid is required for update operation." });
   }
 
-  const review = Review.findOne({ uuid: uuid });
+  const review = await Review.findOne({ uuid: uuid });
 
   if (
     review[subdoc].userLikes.includes(req.user._id) ||
@@ -206,7 +264,7 @@ const increaseDislikes = tryCatch(async (req, res, next) => {
       .json({ error: "Review uuid is required for update operation." });
   }
 
-  const review = Review.findOne({ uuid: uuid });
+  const review = await Review.findOne({ uuid: uuid });
 
   if (
     review[subdoc].userLikes.includes(req.user._id) ||
@@ -240,7 +298,7 @@ const decreaseLikes = tryCatch(async (req, res, next) => {
       .json({ error: "Review uuid is required for update operation." });
   }
 
-  const review = Review.findOne({ uuid: uuid });
+  const review = await Review.findOne({ uuid: uuid });
   if (!review[subdoc].userLikes.includes(req.user._id)) {
     return res
       .status(403)
@@ -270,7 +328,7 @@ const decreaseDislikes = tryCatch(async (req, res, next) => {
       .json({ error: "Review uuid is required for update operation." });
   }
 
-  const review = Review.findOne({ uuid: uuid });
+  const review = await Review.findOne({ uuid: uuid });
   if (!review[subdoc].userLikes.includes(req.user._id)) {
     return res
       .status(403)
@@ -413,7 +471,9 @@ export default {
   create: createReview,
   update: {
     review: updateReview,
+    like: likeSubReview,
     likes: { increase: increaseLikes, decrease: decreaseLikes },
+    dislike: dislikeSubReview,
     dislikes: { increase: increaseDislikes, decrease: decreaseDislikes },
     subdoc: updateSubDocument
   },
