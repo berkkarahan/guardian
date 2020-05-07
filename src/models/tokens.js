@@ -37,7 +37,7 @@ tokenSchema.methods.isUUID = async function(inputUuid) {
   return isUuid(inputUuid);
 };
 
-tokenSchema.methods.validateToken = async function() {
+tokenSchema.methods.validateToken = function() {
   return jwt.verify(this.jwt_token, config.jwt_secret);
 };
 

@@ -25,34 +25,6 @@ reviewRouter.post(
 );
 
 reviewRouter.post(
-  "/:subdoc/like/increase",
-  reviewController.parameterChecker,
-  jwtAuth.authVerified,
-  reviewController.update.likes.increase
-);
-
-reviewRouter.post(
-  "/:subdoc/dislike/increase",
-  reviewController.parameterChecker,
-  jwtAuth.authVerified,
-  reviewController.update.dislikes.increase
-);
-
-reviewRouter.post(
-  "/:subdoc/like/decrease",
-  reviewController.parameterChecker,
-  jwtAuth.authVerified,
-  reviewController.update.likes.decrease
-);
-
-reviewRouter.post(
-  "/:subdoc/dislike/decrease",
-  reviewController.parameterChecker,
-  jwtAuth.authVerified,
-  reviewController.update.dislikes.decrease
-);
-
-reviewRouter.post(
   "/:subdoc/dislike/count",
   reviewController.parameterChecker,
   jwtAuth.authVerified,

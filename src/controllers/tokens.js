@@ -1,5 +1,7 @@
 import db from "../db";
 import tryCatch from "../utils/catcher";
+import config from "../envvars";
+import mailer from "../utils/mailer";
 
 const Token = db.models.token;
 const User = db.models.user;
@@ -31,29 +33,34 @@ const createVerification = tryCatch(async (req, res, next) => {
 
 // served over a POST request.
 const validatePasswordReset = tryCatch(async (req, res, next) => {
-  const { tokenUUID, user } = req.body;
-  const token = await Token.findOne({ token_uuid: tokenUUID });
-
-  if (!token) {
-    res.status(403).send();
+  const { password, uuid } = req.body;
+  const token = await Token.findOne({ uuid: uuid });
+  if (token && !token.validateToken()) {
+    return res.status(403).json({ message: "Wrong uuid or token expired." });
   }
 
-  const passwordResetResult = await token.resetPassword(user.password);
+  const passwordResetResult = await token.resetPassword(password);
   if (!passwordResetResult) {
-    res.status(403).send();
+    return res.status(403).send();
   }
-  res.status(201).send();
+  // remove token once we are done changing password
+  await token.remove();
+  res.status(200).send();
 });
 
-// POST request, send 200 regarldess of user found or not
 const createPasswordReset = tryCatch(async (req, res, next) => {
-  const { user } = req.body;
-  const dbUser = await User.findOne({ email: user.email });
-  if (dbUser) {
-    const token = new Token();
-    await token.generatePasswordResetToken(dbUser);
+  const { email } = req.body;
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    return res
+      .status(403)
+      .json({ message: `User with email not found: ${email}` });
   }
-  // implement email sending logic here
+  const pwdResetToken = new Token();
+  await pwdResetToken.generatePasswordResetToken(user);
+  // send email to pwd reset page with token uuid as url parameter
+  const resetUrl = `${config.fe_url}/forgot_password.html?uuid=${pwdResetToken.token_uuid}`;
+  await mailer.passwordReset.prod(resetUrl, email);
   res.status(200).send();
 });
 

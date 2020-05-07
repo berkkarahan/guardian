@@ -27,6 +27,19 @@ const sendVerification = async (verifUrl, toMail) => {
   await mailTransport.sendMail(mailInfo);
 };
 
+const sendPwdResetMail = async (resetUrl, toMail) => {
+  const mailInfo = {
+    from: config.sender_email,
+    to: toMail,
+    cc: config.sender_email,
+    subject: `Rate'N'Ride password reset email: ${toMail}`,
+    text: resetUrl
+  };
+
+  // send the mail
+  await mailTransport.sendMail(mailInfo);
+};
+
 const sendSupportMail = async mailBody => {
   const mailInfo = {
     from: config.sender_email,
@@ -45,5 +58,6 @@ const sendVerificationTest = async verifUrl => {
 
 export default {
   verification: { prod: sendVerification, test: sendVerificationTest },
-  support: { prod: sendSupportMail }
+  support: { prod: sendSupportMail },
+  passwordReset: { prod: sendPwdResetMail }
 };

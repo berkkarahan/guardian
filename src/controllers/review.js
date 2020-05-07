@@ -203,14 +203,14 @@ const dislikeSubReview = tryCatch(async (req, res, next) => {
   const review = await Review.findOne({ uuid: uuid });
 
   // if user already disliked, return
-  if (review[subdoc].userLikes.includes(req.user._id)) {
+  if (review[subdoc].userDislikes.includes(req.user._id)) {
     return res
       .status(304)
       .json({ message: "User already disliked this post." });
   }
 
   // check if user previously liked
-  if (review[subdoc].userDislikes.includes(req.user._id)) {
+  if (review[subdoc].userLikes.includes(req.user._id)) {
     review[subdoc].likes -= 1;
     review[subdoc].userLikes.pull(req.user._id);
   }
