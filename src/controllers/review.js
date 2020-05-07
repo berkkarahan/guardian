@@ -188,7 +188,14 @@ const likeSubReview = tryCatch(async (req, res, next) => {
   review[subdoc].likes += 1;
   review[subdoc].userLikes.push(req.user._id);
   await review.save();
-  res.status(200).json({ review: { uuid: uuid, subDocument: review[subdoc] } });
+  res.status(200).json({
+    review: {
+      uuid: uuid,
+      subDocument: review[subdoc],
+      canDislike: true,
+      canLike: false
+    }
+  });
 });
 
 const dislikeSubReview = tryCatch(async (req, res, next) => {
@@ -218,7 +225,14 @@ const dislikeSubReview = tryCatch(async (req, res, next) => {
   review[subdoc].dislikes += 1;
   review[subdoc].userDislikes.push(req.user._id);
   await review.save();
-  res.status(200).json({ review: { uuid: uuid, subDocument: review[subdoc] } });
+  res.status(200).json({
+    review: {
+      uuid: uuid,
+      subDocument: review[subdoc],
+      canDislike: false,
+      canLike: true
+    }
+  });
 });
 
 const increaseLikes = tryCatch(async (req, res, next) => {
