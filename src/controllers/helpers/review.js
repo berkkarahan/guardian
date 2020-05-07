@@ -13,6 +13,10 @@ const subDocuments = [
 
 const User = db.models.user;
 
+const compareUsers = (user1Id, user2Id) => {
+  return String(user1Id) === String(user2Id);
+};
+
 const canUserEdit = (review, user) => {
   // This is an auth optional route so if we don't get req.user
   // default response for canUserEdit is false.
@@ -21,14 +25,17 @@ const canUserEdit = (review, user) => {
   }
 
   // MongoDB._id comparison in string.
-  if (String(review.user) === String(user._id)) {
+  if (compareUsers(review.user, user._id)) {
     return true;
   }
   return false;
 };
 
 const canLike = (subDoc, reviewUser, requestUser) => {
-  if (reviewUser !== requestUser && !subDoc.userLikes.includes(requestUser)) {
+  if (
+    compareUsers(reviewUser, requestUser._id) &&
+    !subDoc.userLikes.includes(requestUser)
+  ) {
     return true;
   }
   return false;
@@ -36,7 +43,7 @@ const canLike = (subDoc, reviewUser, requestUser) => {
 
 const canDislike = (subDoc, reviewUser, requestUser) => {
   if (
-    reviewUser !== requestUser &&
+    compareUsers(reviewUser, requestUser._id) &&
     !subDoc.userDislikes.includes(requestUser)
   ) {
     return true;
