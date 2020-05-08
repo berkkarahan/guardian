@@ -34,14 +34,14 @@ const createVerification = tryCatch(async (req, res, next) => {
 // served over a POST request.
 const validatePasswordReset = tryCatch(async (req, res, next) => {
   const { password, uuid } = req.body;
-  const token = await Token.findOne({ uuid: uuid });
-  if (token && !token.validateToken()) {
-    return res.status(403).json({ message: "Wrong uuid or token expired." });
+  const token = await Token.findOne({ token_uuid: uuid });
+  if (!token) {
+    return res.status(403).json({ message: "Token not found." });
   }
 
   const passwordResetResult = await token.resetPassword(password);
   if (!passwordResetResult) {
-    return res.status(403).send();
+    return res.status(403).json({ message: "Invalid token." });
   }
   // remove token once we are done changing password
   await token.remove();
@@ -61,7 +61,7 @@ const createPasswordReset = tryCatch(async (req, res, next) => {
   // send email to pwd reset page with token uuid as url parameter
   const resetUrl = `${config.fe_url}/forgot_password.html?uuid=${pwdResetToken.token_uuid}`;
   await mailer.passwordReset.prod(resetUrl, email);
-  res.status(200).send();
+  res.status(200).json({ token_uuid: pwdResetToken.uuid });
 });
 
 export default {
