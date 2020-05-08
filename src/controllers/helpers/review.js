@@ -40,28 +40,24 @@ const canUserEdit = (review, user) => {
 };
 
 const canLike = (subDoc, reviewUser, requestUser) => {
+  // no unauthenticated requests
   if (!requestUser) {
     return false;
   }
 
-  if (
-    compareUsers(reviewUser, requestUser._id) &&
-    !subDoc.userLikes.includes(requestUser._id)
-  ) {
+  if (!subDoc.userLikes.includes(requestUser._id)) {
     return true;
   }
   return false;
 };
 
 const canDislike = (subDoc, reviewUser, requestUser) => {
+  // no unauthenticated requests
   if (!requestUser) {
     return false;
   }
 
-  if (
-    compareUsers(reviewUser, requestUser._id) &&
-    !subDoc.userDislikes.includes(requestUser._id)
-  ) {
+  if (!subDoc.userDislikes.includes(requestUser._id)) {
     return true;
   }
   return false;
