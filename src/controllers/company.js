@@ -4,10 +4,12 @@ import companyFilters from "../utils/filters/company";
 import travelslotFilters from "../utils/filters/travelslot";
 import travelslotHelpers from "./helpers/travelslots";
 import companyHelpers from "./helpers/company";
+import companyCommentHelpers from "./helpers/companyComments";
 import tryCatch from "../utils/catcher";
 
 const Company = db.models.company;
 const Travelslots = db.models.travelslots;
+const CompanyComment = db.models.companyComment;
 
 const getByUUID = async (Collection, req, res, next) => {
   const { resourceUUID } = req.params;
@@ -151,11 +153,78 @@ const top10TravelslotsbyCompany = tryCatch(async (req, res, next) => {
   res.status(200).json(top10);
 });
 
+// auth verified controller
+const createComment = tryCatch(async (req, res, next) => {
+  const { commentBody, companyUUID } = req.body;
+  const { user } = req;
+  if (!user) {
+    return res.status(403).json({ message: "Authentication failed." });
+  }
+  if (!companyUUID) {
+    return res.status(403).json({ message: "Company uuid missing." });
+  }
+  const company = await Company.findOne({ uuid: companyUUID });
+  const newComment = new CompanyComment();
+  await newComment.createNewComment(commentBody, company, user);
+  res.status(200).json({ companyCommentUUID: newComment.uuid });
+});
+
+// public controller
+const commentReadMany = tryCatch(async (req, res, next) => {
+  const { companyUUID, pageNumber } = req.body.filters;
+  const requestUser = req.user;
+  if (!companyUUID) {
+    return res.status(403).json({ message: "Company uuid missing." });
+  }
+  const company = await Company.findOne({ uuid: companyUUID });
+  const companyComments = await CompanyComment.find({ company: company._id });
+  const finalResponse = await companyCommentHelpers.responseBuilders.companyComment.all(
+    companyComments,
+    requestUser
+  );
+  res.status(200).json(finalResponse);
+});
+
+// auth verified controller
+const updateCompanyComment = tryCatch(async (req, res, next) => {
+  const { commentBody, commentUUID } = req.body;
+  if (!commentUUID) {
+    return res.status(403).json({ message: "CompanyComment uuid missing." });
+  }
+  const companyComment = await CompanyComment.findOne({ uuid: commentUUID });
+  companyComment.comment = commentBody;
+  await companyComment.save();
+  res.status(200).send();
+});
+
+// auth verified controller
+const deleteCompanyComment = tryCatch(async (req, res, next) => {
+  const { commentUUID } = req.body;
+  if (!commentUUID) {
+    return res.status(403).json({ message: "CompanyComment uuid missing." });
+  }
+  await CompanyComment.findOneAndDelete({ uuid: commentUUID });
+  res.status(200).send();
+});
+
 export default {
   getByUUID: { travelslot: getTravelslot, company: getCompany },
-  readMany: { travelslot: travelslotsReadMany, company: companyReadMany },
+  readMany: {
+    travelslot: travelslotsReadMany,
+    company: companyReadMany,
+    companyComment: commentReadMany
+  },
   verify: { travelslot: verifyTravelslot, company: verifyCompany },
-  create: { travelslot: travelslotsCreate, company: companyCreate },
-  update: { travelslot: travelslotsUpdate, company: companyUpdate },
+  create: {
+    travelslot: travelslotsCreate,
+    company: companyCreate,
+    companyComment: createComment
+  },
+  update: {
+    travelslot: travelslotsUpdate,
+    company: companyUpdate,
+    companyComment: updateCompanyComment
+  },
+  delete: { companyComment: deleteCompanyComment },
   top10: { company: top10Companies, travelslot: top10TravelslotsbyCompany }
 };

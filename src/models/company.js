@@ -3,6 +3,7 @@
 /* eslint-disable guard-for-in */
 import mongoose from "mongoose";
 import { merge } from "lodash";
+import { uuid } from "uuidv4";
 import abstract from "./abstract";
 import Review from "./review";
 
@@ -151,7 +152,39 @@ travelSlotsSchema.index(
 
 const Travelslots = mongoose.model("Travelslots", travelSlotsSchema);
 
+const companyComment = merge(
+  {
+    comment: { type: String },
+    company: { type: mongoose.Schema.Types.ObjectId, ref: "Company" },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+  },
+  abstract.baseSchema
+);
+
+const companyCommentSchema = new mongoose.Schema(
+  companyComment,
+  abstract.baseOptions
+);
+
+companyCommentSchema.methods.createNewComment = async function(
+  commentBody,
+  commentCompany,
+  user
+) {
+  this.uuid = uuid();
+  this.comment = commentBody;
+  this.company = commentCompany;
+
+  if (user) {
+    this.user = user;
+  }
+  await this.save();
+};
+
+const CompanyComment = mongoose.model("CompanyComment", companyCommentSchema);
+
 export default {
   company: Company,
-  travelslots: Travelslots
+  travelslots: Travelslots,
+  comment: CompanyComment
 };

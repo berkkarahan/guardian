@@ -10,6 +10,33 @@ import companyHelper from "../../../controllers/helpers/company";
 const companyRouter = express.Router();
 const companyCRUD = initBase(db.models.company);
 
+// company comment routes
+// public
+companyRouter.post(
+  "/comment/all",
+  jwtAuth.authOptional,
+  company.create.companyComment
+);
+
+// auth required
+companyRouter.post(
+  "/comment/create",
+  jwtAuth.authVerified,
+  company.create.companyComment
+);
+
+companyRouter.post(
+  "/comment/update",
+  jwtAuth.authVerified,
+  company.update.companyComment
+);
+
+companyRouter.post(
+  "/comment/delete",
+  jwtAuth.authVerified,
+  company.delete.companyComment
+);
+
 // Helper routes
 companyRouter.get("/cities/:resourceUUID", companyHelper.controllers.cities);
 

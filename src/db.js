@@ -10,6 +10,7 @@ import company from "./models/company";
 
 const Company = company.company;
 const Travelslots = company.travelslots;
+const CompanyComment = company.comment;
 
 (async function() {
   await User.syncIndexes();
@@ -17,6 +18,7 @@ const Travelslots = company.travelslots;
   await Review.syncIndexes();
   await Company.syncIndexes();
   await Travelslots.syncIndexes();
+  await CompanyComment.syncIndexes();
 })().catch(e => {
   console.log(e);
 });
@@ -96,6 +98,7 @@ export default {
     review: Review,
     company: Company,
     travelslots: Travelslots,
+    companyComment: CompanyComment,
     token: Token
   }
 };
