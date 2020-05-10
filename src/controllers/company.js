@@ -65,7 +65,16 @@ const companyReadMany = tryCatch(async (req, res, next) => {
       .status(404)
       .json({ error: "Name parameter must exist if filtering companies." });
   }
-  const queryObject = companyFilters.query(Company.find(), name);
+
+  let minRating;
+  try {
+    minRating = filterParameters.query.minRating;
+  } catch (e) {
+    console.log(e);
+    minRating = undefined;
+  }
+
+  const queryObject = companyFilters.query(Company.find(), name, minRating);
   const paginatedQuery = await paginationUtils.paginateQuery(
     queryObject,
     pagination.pageNumber

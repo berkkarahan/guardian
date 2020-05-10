@@ -10,6 +10,10 @@ const parseFilters = reqFiltersQuery => {
     timeHorizon = timeBetween;
   }
 
+  if (reqFiltersQuery.minRating) {
+    parsed.minRating = reqFiltersQuery.minRating;
+  }
+
   const fromHourLimit = mod(fromHour + timeHorizon, 24);
 
   parsed.from = fromHour;
@@ -48,6 +52,10 @@ const parseFilters = reqFiltersQuery => {
 };
 
 const buildMongooseQuery = (queryObject, parsedQuery) => {
+  if (parsedQuery.minRating) {
+    queryObject.where("averageRating").gte(parsedQuery.minRating);
+  }
+
   if (parsedQuery.to > parsedQuery.from) {
     queryObject.where("fromHour").gte(parsedQuery.from);
     queryObject.where("fromHour").lte(parsedQuery.to);
