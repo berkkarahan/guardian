@@ -118,6 +118,7 @@ const buildReviewAllResponse = async (reviews, requestUser) => {
       userResponse.lastName = reviewUser.lastName;
       userResponse.email = reviewUser.email;
       response.user = userResponse;
+
       return response;
     })
   );

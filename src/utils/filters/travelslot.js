@@ -51,9 +51,6 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
   if (parsedQuery.to > parsedQuery.from) {
     queryObject.where("fromHour").gte(parsedQuery.from);
     queryObject.where("fromHour").lte(parsedQuery.to);
-  } else {
-    queryObject.where("fromHour").gte(parsedQuery.to);
-    queryObject.where("fromHour").lte(parsedQuery.from);
   }
 
   if (parsedQuery.fromCity) {

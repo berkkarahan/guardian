@@ -2,13 +2,17 @@
 import db from "../db";
 import tryCatch from "../utils/catcher";
 import reviewHelpers from "./helpers/review";
+import paginationUtils from "../utils/filters/utils";
+import reviewFilters from "../utils/filters/review";
 
 const Review = db.models.review;
 const Company = db.models.company;
 const Travelslots = db.models.travelslots;
 
 const reviewReadMany = tryCatch(async (req, res, next) => {
-  const { companyUUID, travelslotUUID } = req.body.review;
+  // req.body.filters is a must now
+  const filterParameters = paginationUtils.parseParameters(req.body);
+  const { companyUUID, travelslotUUID } = filterParameters.query;
   if (!companyUUID && !travelslotUUID) {
     return res.status(403).json({
       error:
@@ -16,24 +20,29 @@ const reviewReadMany = tryCatch(async (req, res, next) => {
     });
   }
 
-  const reviews = Review.find();
+  const company = await Company.findOne({ uuid: companyUUID });
+  const travelslot = await Travelslots.findOne({ uuid: travelslotUUID });
 
-  if (companyUUID) {
-    const company = await Company.findOne({ uuid: companyUUID });
-    reviews.where("company").equals(company);
-  }
+  const companyID = company ? company._id : undefined;
+  const travelslotID = travelslot ? travelslot._id : undefined;
 
-  if (travelslotUUID) {
-    const travelslot = await Travelslots.findOne({ uuid: travelslotUUID });
-    reviews.where("travelslot").equals(travelslot);
-  }
+  const queryObject = reviewFilters.query(
+    Review.find(),
+    companyID,
+    travelslotID
+  );
 
-  const finalReviews = await reviews.exec();
+  const paginatedQuery = await paginationUtils.paginateQuery(
+    queryObject,
+    5,
+    filterParameters.pageNumber
+  );
   const arrayResponse = await reviewHelpers.responseBuilders.review.all(
-    finalReviews,
+    await paginatedQuery.paginatedResponse.exec(),
     req.user
   );
-  res.status(200).json(arrayResponse);
+  const modifiedHeaders = paginationUtils.setHeaders(paginatedQuery, res);
+  modifiedHeaders.status(200).json(arrayResponse);
 });
 
 const createReview = tryCatch(async (req, res, next) => {

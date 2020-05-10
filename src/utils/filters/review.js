@@ -1,16 +1,12 @@
-const buildMongooseQuery = (queryObject, reviewFilterBody) => {
-  const { company, travelslot } = reviewFilterBody;
-  if (!company && !travelslot) {
-    throw new Error(
-      "At least either company or travelslot is necessary to filter reviews."
-    );
-  }
-  if (company) {
-    queryObject.where("company").eq(company);
+import db from "../../db";
+
+const buildMongooseQuery = (queryObject, companyID, travelslotID) => {
+  if (companyID) {
+    queryObject.where("company").equals(companyID);
   }
 
-  if (travelslot) {
-    queryObject.where("travelslot").eq(travelslot);
+  if (travelslotID) {
+    queryObject.where("travelslot").equals(travelslotID);
   }
   return queryObject;
 };
