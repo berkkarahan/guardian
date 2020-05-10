@@ -15,7 +15,7 @@ const companyCRUD = initBase(db.models.company);
 companyRouter.post(
   "/comment/all",
   jwtAuth.authOptional,
-  company.create.companyComment
+  company.readMany.companyComment
 );
 
 // auth required
