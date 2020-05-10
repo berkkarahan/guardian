@@ -5,7 +5,7 @@ const parseFilters = reqFiltersQuery => {
   const { fromHour, timeBetween } = reqFiltersQuery.query;
   let timeHorizon;
   if (!timeBetween) {
-    timeHorizon = 10;
+    timeHorizon = 5;
   } else {
     timeHorizon = timeBetween;
   }
