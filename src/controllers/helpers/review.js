@@ -112,14 +112,13 @@ const buildReviewAllResponse = async (reviews, requestUser) => {
 
       // user fields for review response
       const reviewUser = await User.findById(rec.user);
-      if (reviewUser) {
-        const userResponse = {};
-        userResponse.userName = reviewUser.userName;
-        userResponse.firstName = reviewUser.firstName;
-        userResponse.lastName = reviewUser.lastName;
-        userResponse.email = reviewUser.email;
-        response.user = userResponse;
-      }
+      const userResponse = {};
+      userResponse.userName = reviewUser.userName;
+      userResponse.firstName = reviewUser.firstName;
+      userResponse.lastName = reviewUser.lastName;
+      userResponse.email = reviewUser.email;
+      response.user = userResponse;
+
       return response;
     })
   );
