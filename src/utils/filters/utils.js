@@ -19,11 +19,8 @@ const parsePaginatedQueryParameters = requestBody => {
 const paginateQuery = async (queryObject, limit, pageNumber) => {
   const adjLimit = limit || defaultLimit;
   const paginate = (pageNumber - 1) * limit || 0;
-  console.log(await queryObject);
   const initialResponse = await queryObject.exec();
   const queryLength = initialResponse.length;
-
-  console.log(`len: ${queryLength}, limit: ${adjLimit}`);
 
   const pages = ceil(queryLength / adjLimit);
   const adjPaginate =
