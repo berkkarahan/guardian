@@ -19,7 +19,7 @@ const validateVerification = tryCatch(async (req, res, next) => {
   if (!verificationResult) {
     return res.status(403).json({ message: "Verification failed." });
   }
-  await token.remove();
+  await Token.deleteOne({ token_uuid: token.token_uuid });
   res.status(201).json({ message: "Verification successful." });
 });
 
@@ -44,7 +44,7 @@ const validatePasswordReset = tryCatch(async (req, res, next) => {
     return res.status(403).json({ message: "Invalid token." });
   }
   // remove token once we are done changing password
-  await token.remove();
+  await Token.deleteOne({ token_uuid: token.token_uuid });
   res.status(200).send();
 });
 
