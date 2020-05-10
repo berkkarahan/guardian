@@ -58,26 +58,33 @@ const companyReadMany = tryCatch(async (req, res, next) => {
     const modifiedHeaders = paginationUtils.setHeaders(paginatedQuery, res);
     return modifiedHeaders.status(200).json(finalResponse);
   }
-  const { query, pagination } = req.body.filters;
-  const { name } = query;
-  if (!name) {
-    return res
-      .status(404)
-      .json({ error: "Name parameter must exist if filtering companies." });
-  }
+  // const { query, pagination } = req.body.filters;
+  // const { name } = query;
+  // if (!name) {
+  //   return res
+  //     .status(404)
+  //     .json({ error: "Name parameter must exist if filtering companies." });
+  // }
 
-  let minRating;
-  try {
-    minRating = filterParameters.query.minRating;
-  } catch (e) {
-    console.log(e);
-    minRating = undefined;
-  }
+  const name = filterParameters.query.name
+    ? filterParameters.query.name
+    : undefined;
+
+  const minRating = filterParameters.query.minRating
+    ? filterParameters.query.minRating
+    : undefined;
+
+  //   try {
+  //   minRating = filterParameters.query.minRating;
+  // } catch (e) {
+  //   console.log(e);
+  //   minRating = undefined;
+  // }
 
   const queryObject = companyFilters.query(Company.find(), name, minRating);
   const paginatedQuery = await paginationUtils.paginateQuery(
     queryObject,
-    pagination.pageNumber
+    filterParameters.pageNumber
   );
   const finalResponse = await companyHelpers.responseBuilders.company.all(
     await paginatedQuery.paginatedResponse.exec()
