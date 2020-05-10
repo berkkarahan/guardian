@@ -144,7 +144,7 @@ app.use("/api/", generalLimiter);
 // Register routes here
 app.use("/api", mainRouter);
 app.get("/", (req, res, next) => {
-  res.redirect(config.fe_url);
+  res.redirect(`${config.fe_url}/index.html`);
 });
 
 const pong = tryCatch(async (req, res, next) => {

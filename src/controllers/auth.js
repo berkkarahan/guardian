@@ -60,7 +60,7 @@ const loginHandlerJwt = tryCatch(async (req, res, next) => {
     blacklistedTokens.forEach(async blacklistToken => {
       const verificationStatus = await blacklistToken.validateToken();
       if (!verificationStatus) {
-        await blacklistToken.remove();
+        await Token.deleteOne({ token_uuid: blacklistToken.token_uuid });
       }
     });
   }

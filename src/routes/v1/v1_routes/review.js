@@ -11,31 +11,17 @@ reviewRouter.post("/all", jwtAuth.authOptional, reviewController.readMany);
 reviewRouter.post("/create", jwtAuth.authVerified, reviewController.create);
 
 reviewRouter.post(
-  "/:subdoc/like/increase",
+  "/:subdoc/like",
   reviewController.parameterChecker,
   jwtAuth.authVerified,
-  reviewController.update.likes.increase
+  reviewController.update.like
 );
 
 reviewRouter.post(
-  "/:subdoc/dislike/increase",
+  "/:subdoc/dislike",
   reviewController.parameterChecker,
   jwtAuth.authVerified,
-  reviewController.update.dislikes.increase
-);
-
-reviewRouter.post(
-  "/:subdoc/like/decrease",
-  reviewController.parameterChecker,
-  jwtAuth.authVerified,
-  reviewController.update.likes.decrease
-);
-
-reviewRouter.post(
-  "/:subdoc/dislike/decrease",
-  reviewController.parameterChecker,
-  jwtAuth.authVerified,
-  reviewController.update.dislikes.decrease
+  reviewController.update.dislike
 );
 
 reviewRouter.post(

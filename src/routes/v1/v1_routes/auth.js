@@ -20,12 +20,16 @@ authRouter.post("/signup", usersController.create);
 // Route to create and send(not yet implemented) verification token
 authRouter.post(
   "/verification",
-  jwtAuth.authRequired,
+  passport.authenticate("local", { session: false }),
   tokensController.verification.create
 );
 
 // Route with GET request to validate token from url.
 authRouter.get("/verification", tokensController.verification.validate);
+
+// password reset routes
+authRouter.post("/password-reset", tokensController.password.create);
+authRouter.post("/password-reset-callback", tokensController.password.validate);
 
 // simple route to see if suthenticated
 const checkSession = async (req, res, next) => {

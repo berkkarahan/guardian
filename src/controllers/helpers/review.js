@@ -13,6 +13,18 @@ const subDocuments = [
 
 const User = db.models.user;
 
+const generateSubDocContent = subdoc => {
+  const jsonSubdoc = JSON.parse(JSON.stringify(subdoc));
+  delete jsonSubdoc._id;
+  delete jsonSubdoc.userLikes;
+  delete jsonSubdoc.userDislikes;
+  return jsonSubdoc;
+};
+
+const compareUsers = (user1Id, user2Id) => {
+  return String(user1Id) === String(user2Id);
+};
+
 const canUserEdit = (review, user) => {
   // This is an auth optional route so if we don't get req.user
   // default response for canUserEdit is false.
@@ -21,24 +33,31 @@ const canUserEdit = (review, user) => {
   }
 
   // MongoDB._id comparison in string.
-  if (String(review.user) === String(user._id)) {
+  if (compareUsers(review.user, user._id)) {
     return true;
   }
   return false;
 };
 
 const canLike = (subDoc, reviewUser, requestUser) => {
-  if (reviewUser !== requestUser && !subDoc.userLikes.includes(requestUser)) {
+  // no unauthenticated requests
+  if (!requestUser) {
+    return false;
+  }
+
+  if (!subDoc.userLikes.includes(requestUser._id)) {
     return true;
   }
   return false;
 };
 
 const canDislike = (subDoc, reviewUser, requestUser) => {
-  if (
-    reviewUser !== requestUser &&
-    !subDoc.userDislikes.includes(requestUser)
-  ) {
+  // no unauthenticated requests
+  if (!requestUser) {
+    return false;
+  }
+
+  if (!subDoc.userDislikes.includes(requestUser._id)) {
     return true;
   }
   return false;
@@ -66,7 +85,7 @@ const buildReviewAllResponse = async (reviews, requestUser) => {
         // build subdoc response only if it exists at review
         if (rec[subDoc]) {
           const subDocResponse = {};
-          subDocResponse.content = rec[subDoc];
+          subDocResponse.content = generateSubDocContent(rec[subDoc]);
           // canDislike for subDoc
           if (rec[subDoc].userDislikes) {
             subDocResponse.canDislike = canDislike(

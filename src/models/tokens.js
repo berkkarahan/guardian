@@ -37,7 +37,7 @@ tokenSchema.methods.isUUID = async function(inputUuid) {
   return isUuid(inputUuid);
 };
 
-tokenSchema.methods.validateToken = async function() {
+tokenSchema.methods.validateToken = function() {
   return jwt.verify(this.jwt_token, config.jwt_secret);
 };
 
@@ -53,7 +53,10 @@ tokenSchema.methods.resetPassword = async function(password) {
   if (!this.validateToken()) {
     return false;
   }
-  await User.findByIdAndUpdate(this.user._id, { password: password });
+  const user = await User.findById(this.user._id);
+  user.password = password;
+  await user.save();
+  return true;
 };
 
 tokenSchema.methods.generateBlacklistToken = async function(
