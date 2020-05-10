@@ -1,6 +1,7 @@
 import db from "../db";
-import paginateQuery from "../utils/filters/utils";
+import paginationUtils from "../utils/filters/utils";
 import companyFilters from "../utils/filters/company";
+import companyCommentFilters from "../utils/filters/companyComment";
 import travelslotFilters from "../utils/filters/travelslot";
 import travelslotHelpers from "./helpers/travelslots";
 import companyHelpers from "./helpers/company";
@@ -42,13 +43,20 @@ const verifyTravelslot = tryCatch(async (req, res, next) => {
 });
 
 const companyReadMany = tryCatch(async (req, res, next) => {
-  // return all if no filters given
-  if (!req.body.filters) {
-    const records = await Company.find();
-    const finalResponse = await companyHelpers.responseBuilders.company.all(
-      records
+  // req.body.filters is a must now
+  const filterParameters = paginationUtils.parseParameters(req.body);
+  if (!filterParameters.query) {
+    const pageNumber = filterParameters.pageNumber || 1;
+    const paginatedQuery = await paginationUtils.paginateQuery(
+      Company.find(),
+      10,
+      pageNumber
     );
-    return res.status(200).send(finalResponse);
+    const finalResponse = await companyHelpers.responseBuilders.company.all(
+      await paginatedQuery.paginatedResponse.exec()
+    );
+    const modifiedHeaders = paginationUtils.setHeaders(paginatedQuery, res);
+    return modifiedHeaders.status(200).json(finalResponse);
   }
   const { query, pagination } = req.body.filters;
   const { name } = query;
@@ -58,23 +66,34 @@ const companyReadMany = tryCatch(async (req, res, next) => {
       .json({ error: "Name parameter must exist if filtering companies." });
   }
   const queryObject = companyFilters.query(Company.find(), name);
-  const paginatedQuery = paginateQuery(queryObject, pagination.pageNumber);
+  const paginatedQuery = await paginationUtils.paginateQuery(
+    queryObject,
+    pagination.pageNumber
+  );
   const finalResponse = await companyHelpers.responseBuilders.company.all(
-    await paginatedQuery.exec()
+    await paginatedQuery.paginatedResponse.exec()
   );
   res.status(200).send(finalResponse);
 });
 
 const travelslotsReadMany = tryCatch(async (req, res, next) => {
-  if (!req.body.filters) {
-    const records = await Travelslots.find();
-    const jsonResponse = await travelslotHelpers.responseBuilders.travelslots.all(
-      records
+  // req.body.filters is a must now
+  const filterParameters = paginationUtils.parseParameters(req.body);
+  if (!filterParameters.query) {
+    const pageNumber = filterParameters.pageNumber || 1;
+    const paginatedQuery = await paginationUtils.paginateQuery(
+      Travelslots.find(),
+      10,
+      pageNumber
     );
-    return res.status(200).json(jsonResponse);
+    const jsonResponse = await travelslotHelpers.responseBuilders.travelslots.all(
+      await paginatedQuery.paginatedResponse.exec()
+    );
+    const modifiedHeaders = paginationUtils.setHeaders(paginatedQuery, res);
+    return modifiedHeaders.status(200).json(jsonResponse);
   }
-  const { query, pagination } = req.body.filters;
-  const { fromHour, fromCity } = query;
+
+  const { fromHour, fromCity } = filterParameters.query;
   if (!fromHour && !fromCity) {
     return res.status(404).json({
       error:
@@ -86,11 +105,16 @@ const travelslotsReadMany = tryCatch(async (req, res, next) => {
     Travelslots.find(),
     travelslotFilters.parse(req.body.filters)
   );
-  const paginatedQuery = paginateQuery(queryObject, pagination.pageNumber);
-  const jsonResponse = await travelslotHelpers.responseBuilders.travelslots.all(
-    await paginatedQuery.exec()
+  const paginatedQuery = await paginationUtils.paginateQuery(
+    queryObject,
+    10,
+    filterParameters.pageNumber
   );
-  res.status(200).json(jsonResponse);
+  const jsonResponse = await travelslotHelpers.responseBuilders.travelslots.all(
+    await paginatedQuery.paginatedResponse.exec()
+  );
+  const modifiedHeaders = paginationUtils.setHeaders(paginatedQuery, res);
+  modifiedHeaders.status(200).json(jsonResponse);
 });
 
 const customCreate = async (Collection, req, res, next) => {
@@ -171,18 +195,35 @@ const createComment = tryCatch(async (req, res, next) => {
 
 // public controller
 const commentReadMany = tryCatch(async (req, res, next) => {
-  const { companyUUID, pageNumber } = req.body.filters;
+  // const { companyUUID, pageNumber } = req.body.filters;
+  const filterParameters = paginationUtils.parseParameters(req.body);
+  const pageNumber = filterParameters.pageNumber || 1;
   const requestUser = req.user;
-  if (!companyUUID) {
-    return res.status(403).json({ message: "Company uuid missing." });
+  let companyUUID;
+  try {
+    companyUUID = filterParameters.query.companyUUID;
+  } catch (e) {
+    return res.status(403).json({ message: "Company uuid missing.", error: e });
   }
+
   const company = await Company.findOne({ uuid: companyUUID });
-  const companyComments = await CompanyComment.find({ company: company._id });
-  const finalResponse = await companyCommentHelpers.responseBuilders.companyComment.all(
-    companyComments,
+  const companyID = company ? company._id : undefined;
+
+  const queryObject = companyCommentFilters.query(
+    CompanyComment.find(),
+    companyID
+  );
+  const paginatedQuery = await paginationUtils.paginateQuery(
+    queryObject,
+    10,
+    pageNumber
+  );
+  const jsonResponse = await companyCommentHelpers.responseBuilders.companyComment.all(
+    await paginatedQuery.paginatedResponse.exec(),
     requestUser
   );
-  res.status(200).json(finalResponse);
+  const modifiedHeaders = paginationUtils.setHeaders(paginatedQuery, res);
+  modifiedHeaders.status(200).json(jsonResponse);
 });
 
 // auth verified controller

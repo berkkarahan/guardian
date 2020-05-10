@@ -5,7 +5,7 @@ const parseFilters = reqFiltersQuery => {
   const { fromHour, timeBetween } = reqFiltersQuery.query;
   let timeHorizon;
   if (!timeBetween) {
-    timeHorizon = 5;
+    timeHorizon = 10;
   } else {
     timeHorizon = timeBetween;
   }
@@ -51,9 +51,6 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
   if (parsedQuery.to > parsedQuery.from) {
     queryObject.where("fromHour").gte(parsedQuery.from);
     queryObject.where("fromHour").lte(parsedQuery.to);
-  } else {
-    queryObject.where("fromHour").gte(parsedQuery.to);
-    queryObject.where("fromHour").lte(parsedQuery.from);
   }
 
   if (parsedQuery.fromCity) {
