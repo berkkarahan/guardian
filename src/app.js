@@ -113,7 +113,8 @@ const adminRouter = AdminBroExpress.buildAuthenticatedRouter(
 
 const corsConfig = {
   origin: true,
-  credentials: true
+  credentials: true,
+  exposedHeaders: ["X-Max-Pages", "X-Total-Count"]
 };
 
 app.use(adminBro.options.rootPath, adminRouter);
