@@ -52,6 +52,7 @@ const parseFilters = reqFiltersQuery => {
 };
 
 const buildMongooseQuery = (queryObject, parsedQuery) => {
+  console.log(parsedQuery);
   if (parsedQuery.minRating) {
     queryObject.where("averageRating").gte(parsedQuery.minRating);
   }
