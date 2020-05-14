@@ -5,7 +5,7 @@ const parseFilters = reqFiltersQuery => {
   const { fromHour, timeBetween } = reqFiltersQuery.query;
   let timeHorizon;
   if (!timeBetween) {
-    timeHorizon = 5;
+    timeHorizon = 2;
   } else {
     timeHorizon = timeBetween;
   }
@@ -62,16 +62,14 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
   }
 
   if (parsedQuery.fromCity) {
-    queryObject
-      .where("fromCity")
-      .eq(parsedQuery.fromCity.toLowerCase())
-      .collation({ locale: "en", strength: 2 });
+    queryObject.where("fromCity").eq(parsedQuery.fromCity);
+    // .eq(parsedQuery.fromCity.toLowerCase())
+    // .collation({ locale: "en", strength: 2 });
   }
   if (parsedQuery.toCity) {
-    queryObject
-      .where("toCity")
-      .eq(parsedQuery.toCity.toLowerCase())
-      .collation({ locale: "en", strength: 2 });
+    queryObject.where("toCity").eq(parsedQuery.toCity);
+    // .eq(parsedQuery.toCity.toLowerCase())
+    // .collation({ locale: "en", strength: 2 });
   }
   if (typeof parsedQuery.isPetAllowed === "boolean") {
     queryObject.where("petAllowed").eq(parsedQuery.isPetAllowed);

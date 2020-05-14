@@ -31,8 +31,8 @@ companySchema.methods.updateTitle = async function() {
 };
 
 companySchema.methods.calculateReviewCounts = async function() {
-  const reviews = await Review.find({ company: this });
-  return reviews.length;
+  const reviewCount = await Review.find({ company: this._id }).count();
+  return reviewCount;
 };
 
 companySchema.methods.calculateAverageRating = async function() {
