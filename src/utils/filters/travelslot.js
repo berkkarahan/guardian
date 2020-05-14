@@ -56,10 +56,10 @@ const buildMongooseQuery = (queryObject, parsedQuery) => {
     queryObject.where("averageRating").gte(parsedQuery.minRating);
   }
 
-  if (parsedQuery.to > parsedQuery.from) {
-    queryObject.where("fromHour").gte(parsedQuery.from);
-    queryObject.where("fromHour").lte(parsedQuery.to);
-  }
+  // if (parsedQuery.to > parsedQuery.from) {
+  queryObject.where("fromHour").gte(parsedQuery.from);
+  queryObject.where("fromHour").lte(parsedQuery.to);
+  // }
 
   if (parsedQuery.fromCity) {
     queryObject.where("fromCity").eq(parsedQuery.fromCity);
