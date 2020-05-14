@@ -3,6 +3,7 @@ import { mod } from "mathjs";
 const parseFilters = reqFiltersQuery => {
   const parsed = {};
   const { fromHour, timeBetween } = reqFiltersQuery.query;
+  const intFromHour = parseInt(fromHour, 10);
   let timeHorizon;
   if (!timeBetween) {
     timeHorizon = 2;
@@ -14,9 +15,9 @@ const parseFilters = reqFiltersQuery => {
     parsed.minRating = reqFiltersQuery.minRating;
   }
 
-  const fromHourLimit = mod(fromHour + timeHorizon, 24);
+  const fromHourLimit = mod(intFromHour + timeHorizon, 24);
 
-  parsed.from = fromHour;
+  parsed.from = intFromHour;
   parsed.to = fromHourLimit;
   parsed.fromCity = reqFiltersQuery.query.fromCity;
   parsed.toCity = reqFiltersQuery.query.toCity;
