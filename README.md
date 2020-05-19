@@ -117,13 +117,144 @@ response
 ```
 ### deactivate
 POST -> Authorization bearer token required(jwt).
-## company
+## companies
 ### comment/all
+POST -> Authorization bearer token is optional(jwt).
+```
+{
+    filters {
+        query {
+            companyUUID
+        }
+        pageNumber
+    }
+}
+```
+response 
+```
+{
+    uuid
+    comment
+    canUserEdit
+    user {
+        ...
+    }
+}
+```
 ### comment/create
+POST -> Authorization bearer token is optional(jwt).
+```
+{
+    commentBody
+    companyUUID
+}
+```
+response 
+```
+{
+    companyCommentUUID
+}
+```
 ### comment/update
+POST -> Authorization bearer token is optional(jwt).
+```
+{
+    commentBody
+    commentUUID
+}
+```
 ### comment/delete
+POST -> Authorization bearer token is optional(jwt).
+```
+{
+    commentUUID
+}
+```
 ### cities/'companyUUID'
+GET -> request companyUUID as URL parameneter.
 ### top
 ### 'companyUUID'
+GET -> request companyUUID as URL parameneter.
+response 
+```
+{
+    <company details>
+}
+```
 ### all
- 
+POST ->
+```
+{
+    filters {
+        query {
+            name
+        }
+        pageNumber
+    }
+}
+```
+response 
+```
+{
+    uuid
+    title
+    averageRating
+    reviewCount
+    information {
+        petAllowed
+        is3Seater
+    }
+}
+```
+## travelslots
+### cities
+GET -> request
+### top/'companyUUID'
+GET -> request with company uuid as url parameter
+### 'travelslotUUID'
+GET -> request with travelslot uuid as url parameter
+response 
+```
+{
+    <travelslot details>
+}
+```
+### all
+POST -> request
+```
+{
+    filters {
+        query {
+            fromHour
+            minRating
+            fromCity
+            toCity
+        }
+        pageNumber
+    }
+}
+```
+response 
+```
+{
+    company {
+        uuid
+        title
+        averageRating
+        reviewCount
+    }
+    travelslot {
+        uuid
+        averageRating
+        reviewCount
+        fromHour
+        fromMinute
+        fromCity
+        travelTime
+        toCity
+        luxuryCategory
+        isPetAllowed
+        is3Seater
+    }
+}
+```
