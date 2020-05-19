@@ -122,8 +122,8 @@ POST -> Authorization bearer token required(jwt).
 ### comment/create
 ### comment/update
 ### comment/delete
-### cities/<companyUUID>
+### cities/'companyUUID''
 ### top
-### <companyUUID>
+### 'companyUUID'
 ### all
  
