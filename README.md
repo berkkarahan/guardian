@@ -258,3 +258,120 @@ response
     }
 }
 ```
+## review
+subdoc parameters are;
+```
+    "driver",
+    "hostess",
+    "breaks",
+    "travel",
+    "baggage",
+    "pet",
+    "comfort",
+    "vehicle"
+```
+### :subdoc/like
+POST -> Authorization bearer token is required(jwt).
+```
+{
+    review {
+        uuid
+    }
+}
+```
+response
+```
+review {
+    uuid,
+    subDocument,
+    canDislike: true,
+    canLike: false
+}
+```
+### :subdoc/dislike
+POST -> Authorization bearer token is required(jwt).
+```
+{
+    review {
+        uuid
+    }
+}
+```
+response
+```
+review {
+    uuid,
+    subDocument,
+    canDislike: false,
+    canLike: true
+}
+```
+### :subdoc/update
+POST -> Authorization bearer token is required(jwt).
+```
+{
+    review {
+        uuid,
+        comment,
+        rating
+    }
+}
+```
+### :subdoc/delete
+POST -> Authorization bearer token is required(jwt).
+```
+{
+    review {
+        uuid
+    }
+}
+```
+### all
+POST -> Authorization bearer token is optional(jwt).
+```
+{
+    filters {
+        query {
+            companyUUID
+            travelslotUUID
+        }
+        pageNumber
+    }
+}
+```
+response
+```
+{
+    uuid
+    averageRating
+    createdAt
+    canEdit
+    <subdocument responses>
+    user {
+        userName
+        firstName
+        lastName
+        email
+    }
+}
+```
+### create
+POST -> Authorization bearer token is required(jwt).
+```
+{
+    review {
+        subdocuments {
+            comment
+            rating
+        }
+    }
+}
+```
+response
+```
+{
+    data {
+        reviewUUID
+    }
+}
+```
